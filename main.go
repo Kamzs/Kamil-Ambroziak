@@ -1,14 +1,23 @@
 package main
 
 import (
+	"Kamil-Ambroziak/controllers"
 	"fmt"
 	"github.com/robfig/cron"
 	"time"
+	"github.com/gin-gonic/gin"
 
 )
 
+var (
+	router = gin.Default()
+)
 
 func main() {
+
+	router.Run(":8080")
+	mapUrls()
+
 	c := cron.New()
 
 	c.AddFunc("*/1 * * * *", func() { fmt.Println("getPage1 1 sec") })
@@ -31,3 +40,8 @@ func main() {
 	time.Sleep(5 * time.Minute)
 
 }
+func mapUrls(){
+	router.POST("/api/fetcher", controllers.AddFetcher)
+
+}
+
