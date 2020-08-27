@@ -1,14 +1,24 @@
 package controllers
 
 import (
+	"context"
 	"github.com/gin-gonic/gin"
+	"io/ioutil"
 	"net/http"
 )
 
 func AddFetcher(c *gin.Context) {
 
 	//todo middleware do contet lenghta
-	c.Request.ContentLength
+	checkLength(c.Request.ContentLength)
+
+
+	//todo add timeouts (przez context??)
+	context.Background()
+	client:= http.Client{Timeout: 300}
+	resp, err:= client.Get("url")
+	htmlData, err := ioutil.ReadAll(resp.Body)
+	data:= string(htmlData)
 
 	var request users.LoginRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
