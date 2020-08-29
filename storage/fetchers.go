@@ -79,7 +79,7 @@ func (db *MySQL) FindAllFetchers() ([]fetchers.Fetcher, utils.RestErr) {
 	results := make([]fetchers.Fetcher, 0)
 	for rows.Next() {
 		var fetcher fetchers.Fetcher
-		if err := rows.Scan(&fetcher.Id, &fetcher.Url, &fetcher.Interval); err != nil {
+		if err := rows.Scan(&fetcher.Id, &fetcher.Url, &fetcher.Interval, &fetcher.JobID); err != nil {
 			logger.Error("error when scan fetcher row into fetcher struct", err)
 			return nil, utils.NewInternalServerError("error when tying to get fetcher", errors.New("database error"))
 		}

@@ -14,14 +14,14 @@ Content-Type: application/json
 }
 
 ###
-DELETE http://localhost:8080/api/fetcher/1
+DELETE http://localhost:8080/api/fetcher/6
 Content-Type: application/json
 
 {
 }
 
 ###
-PATCH http://localhost:8080/api/fetcher/2
+PATCH http://localhost:8080/api/fetcher/4
 Content-Type: application/json
 
 {

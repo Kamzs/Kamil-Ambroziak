@@ -38,12 +38,19 @@ func (api *Api) AddFetcher(c *gin.Context) {
 }
 func (api *Api) GetAllFetchers(c *gin.Context) {
 
-	fetchers, getErr := api.Storage.FindAllFetchers()
+	found, getErr := api.Storage.FindAllFetchers()
 	if getErr != nil {
 		c.JSON(getErr.Status(), getErr)
 		return
 	}
-	c.JSON(http.StatusOK, fetchers)
+	var resp []fetchers.GetAllFetchersResponse
+	for index,value := range found {
+		resp = append(resp,fetchers.GetAllFetchersResponse{})
+		resp[index].Id=value.Id
+		resp[index].Interval=value.Interval
+		resp[index].Url=value.Url
+	}
+	c.JSON(http.StatusOK, resp)
 }
 
 //todo determine if pathing or full update
@@ -114,12 +121,19 @@ func (api *Api) GetHistoryForFetcher(c *gin.Context) {
 		c.JSON(idErr.Status(), idErr)
 		return
 	}
-	fetcher, getErr := api.Storage.GetHistoryForFetcher(fetcherId)
+	fetchersSlice, getErr := api.Storage.GetHistoryForFetcher(fetcherId)
 	if getErr != nil {
 		c.JSON(getErr.Status(), getErr)
 		return
 	}
 
+	var resp []fetchers.HistoryElementResponse
+	for index,value := range fetchersSlice {
+		resp = append(resp, fetchers.HistoryElementResponse{})
+		resp[index].CreatedAt=value.CreatedAt
+		resp[index].Duration=value.Duration
+		resp[index].Response=value.Response
+	}
 	//todo after implementation of new table for fetched data saving change output
-	c.JSON(http.StatusOK, fetcher)
+	c.JSON(http.StatusOK, resp)
 }
