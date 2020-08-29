@@ -12,7 +12,12 @@ Content-Type: application/json
 
 {
 }
+###
+GET http://localhost:8080/api/fetcher/17/history
+Content-Type: application/json
 
+{
+}
 ###
 DELETE http://localhost:8080/api/fetcher/6
 Content-Type: application/json

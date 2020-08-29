@@ -9,6 +9,6 @@ const (
 	queryFindAll = "SELECT id, url, inter, job_id FROM fetchers;"
 	//history
 	queryInsertHistoryElement = "INSERT INTO history(id, response, duration, created_at) VALUES(?, ?, ?, ?);"
-	queryGetHistory    = "SELECT id, response, duration, created_at FROM fetchers WHERE id=?;"
+	queryGetHistory    = "SELECT id, response, duration, created_at FROM history WHERE id=?;"
 
 )

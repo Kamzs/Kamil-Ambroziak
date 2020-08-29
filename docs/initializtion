@@ -14,6 +14,5 @@ CREATE TABLE `history` (
   `id` int(6) NOT NULL,
   `response` varchar(5000),
   `duration` int(6) NOT NULL,
-  `created_at` varchar(30) NOT NULL,
-  PRIMARY KEY (`id`)
+  `created_at` varchar(30) NOT NULL
 ) DEFAULT CHARSET=latin1;

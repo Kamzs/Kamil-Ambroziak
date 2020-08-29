@@ -17,7 +17,6 @@ func getFetcherId(fetcherIdParam string) (int64, utils.RestErr) {
 	return fetcherId, nil
 }
 func fillMissingFields(oldFetcher *fetchers.Fetcher, newFetcher *fetchers.Fetcher){
-
 	if newFetcher.Interval == 0 {newFetcher.Interval = oldFetcher.Interval}
 	if newFetcher.Url == "" {newFetcher.Url = oldFetcher.Url}
 }

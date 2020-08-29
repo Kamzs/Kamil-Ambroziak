@@ -44,7 +44,7 @@ func (db *MySQL) GetHistoryForFetcher(fetcherId int64 ) ([]fetchers.HistoryEleme
 	var results []fetchers.HistoryElement
 	for rows.Next() {
 		var historyEl fetchers.HistoryElement
-		if err := rows.Scan(&historyEl.Response, &historyEl.Duration, &historyEl.CreatedAt, &historyEl.Id); err != nil {
+		if err := rows.Scan(&historyEl.Id, &historyEl.Response, &historyEl.Duration, &historyEl.CreatedAt); err != nil {
 			logger.Error("error when scan historyEl row into historyElementResponse struct", err)
 			return nil, utils.NewInternalServerError("error when tying to get history for fetcher", errors.New("database error"))
 		}

@@ -1,3 +1,205 @@
+GET http://localhost:8080/api/fetcher/17/history
+Content-Type: application/json
+
+{
+}
+
+<> 2020-08-29T062548.200.json
+
+###
+
+GET http://localhost:8080/api/fetcher/16/history
+Content-Type: application/json
+
+{
+}
+
+<> 2020-08-29T062540.404.json
+
+###
+
+GET http://localhost:8080/api/fetcher/17/history
+Content-Type: application/json
+
+{
+}
+
+<> 2020-08-29T062530.200.json
+
+###
+
+GET http://localhost:8080/api/fetcher/17/history
+Content-Type: application/json
+
+{
+}
+
+<> 2020-08-29T062308.500.json
+
+###
+
+POST http://localhost:8080/api/fetcher
+Content-Type: application/json
+
+{
+  "url": "https://httpbin.org/range/15",
+  "interval":10
+}
+
+<> 2020-08-29T062302.201.json
+
+###
+
+GET http://localhost:8080/api/fetcher/16/history
+Content-Type: application/json
+
+{
+}
+
+<> 2020-08-29T062149.500.json
+
+###
+
+GET http://localhost:8080/api/fetcher/16/history
+Content-Type: application/json
+
+{
+}
+
+<> 2020-08-29T062111.500.json
+
+###
+
+GET http://localhost:8080/api/fetcher/16/history
+Content-Type: application/json
+
+{
+}
+
+<> 2020-08-29T061849.500.json
+
+###
+
+POST http://localhost:8080/api/fetcher
+Content-Type: application/json
+
+{
+  "url": "https://httpbin.org/range/15",
+  "interval":10
+}
+
+<> 2020-08-29T061746.201.json
+
+###
+
+POST http://localhost:8080/api/fetcher
+Content-Type: application/json
+
+{
+  "url": "https://httpbin.org/range/15",
+  "interval":10
+}
+
+<> 2020-08-29T061537.201.json
+
+###
+
+POST http://localhost:8080/api/fetcher
+Content-Type: application/json
+
+{
+  "url": "https://httpbin.org/range/15",
+  "interval":10
+}
+
+<> 2020-08-29T061412.201.json
+
+###
+
+POST http://localhost:8080/api/fetcher
+Content-Type: application/json
+
+{
+  "url": "https://httpbin.org/range/15",
+  "interval":10
+}
+
+<> 2020-08-29T061159.201.json
+
+###
+
+POST http://localhost:8080/api/fetcher
+Content-Type: application/json
+
+{
+  "url": "https://httpbin.org/range/15",
+  "interval":10
+}
+
+<> 2020-08-29T061117.201.json
+
+###
+
+POST http://localhost:8080/api/fetcher
+Content-Type: application/json
+
+{
+  "url": "https://httpbin.org/range/15",
+  "interval":10
+}
+
+<> 2020-08-29T060933.201.json
+
+###
+
+POST http://localhost:8080/api/fetcher
+Content-Type: application/json
+
+{
+  "url": "https://httpbin.org/range/15",
+  "interval":10
+}
+
+<> 2020-08-29T060754.201.json
+
+###
+
+POST http://localhost:8080/api/fetcher
+Content-Type: application/json
+
+{
+  "url": "https://httpbin.org/range/15",
+  "interval":10
+}
+
+<> 2020-08-29T060637.201.json
+
+###
+
+POST http://localhost:8080/api/fetcher
+Content-Type: application/json
+
+{
+  "url": "https://httpbin.org/range/15",
+  "interval":10
+}
+
+<> 2020-08-29T060455.201.json
+
+###
+
+POST http://localhost:8080/api/fetcher
+Content-Type: application/json
+
+{
+  "url": "https://httpbin.org/range/15",
+  "interval":10
+}
+
+<> 2020-08-29T060352.201.json
+
+###
+
 DELETE http://localhost:8080/api/fetcher/6
 Content-Type: application/json
 

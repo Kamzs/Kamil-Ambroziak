@@ -14,13 +14,13 @@ type Storage interface {
 	DeleteFetcher(fetcherId int64) utils.RestErr
 	FindAllFetchers() ([]Fetcher, utils.RestErr)
 	GetFetcher(fetcherId int64 ) (*Fetcher, utils.RestErr)
+	SaveHistoryForFetcher(historyEl *HistoryElement) utils.RestErr
 	GetHistoryForFetcher(fetcherId int64 ) ([]HistoryElement, utils.RestErr)
 }
 
 type Worker interface {
 	RegisterFetcher(fetcher *Fetcher) (cron.EntryID, utils.RestErr)
 	DeregisterFetcher(jobId cron.EntryID)
-	UpdateFetcher(fetcher *Fetcher) utils.RestErr
 }
 
 type Fetcher struct {
@@ -37,12 +37,12 @@ type GetAllFetchersResponse struct {
 
 type HistoryElement struct {
 	Id        int64  `json:"id"`
-	Response  string `json:"url"`
+	Response  string `json:"response"`
 	Duration  int64  `json:"duration"`
 	CreatedAt int64  `json:"created_at"`
 }
 type HistoryElementResponse struct {
-	Response  string `json:"url"`
+	Response  string `json:"response"`
 	Duration  int64  `json:"duration"`
 	CreatedAt int64  `json:"created_at"`
 }

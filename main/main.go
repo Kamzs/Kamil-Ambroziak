@@ -4,9 +4,10 @@ import (
 	"Kamil-Ambroziak/api"
 	"Kamil-Ambroziak/logger"
 	"Kamil-Ambroziak/storage"
-	"Kamil-Ambroziak/worker"
+	worker2 "Kamil-Ambroziak/worker"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
+
 )
 
 var (
@@ -22,7 +23,8 @@ func main() {
 		return
 	}
 
-	worker := worker.NewWorker()
+	worker := worker2.NewWorker()
+
 	api:= api.NewAPIServer(msql,worker)
 
 	router.POST("/api/fetcher", api.AddFetcher)

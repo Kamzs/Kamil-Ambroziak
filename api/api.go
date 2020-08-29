@@ -1,6 +1,8 @@
 package api
 
-import fetchers "Kamil-Ambroziak"
+import (
+	fetchers "Kamil-Ambroziak"
+)
 
 type Api struct{
 	Storage fetchers.Storage
