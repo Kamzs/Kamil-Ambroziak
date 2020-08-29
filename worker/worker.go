@@ -54,7 +54,7 @@ func doJob(fetcher *fetchers.Fetcher) {
 	if err != nil {
 		fmt.Println(err)
 	}*/
-	//defer resp.Body.Close()
+	defer resp.Body.Close()
 	var bodyString string
 	if resp.StatusCode == http.StatusOK {
 		bodyBytes, err := ioutil.ReadAll(resp.Body)

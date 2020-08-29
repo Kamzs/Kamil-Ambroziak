@@ -3,7 +3,7 @@ Content-Type: application/json
 
 {
   "url": "https://httpbin.org/range/10",
-  "interval":10
+  "interval":30
 }
 
 ###
@@ -13,20 +13,20 @@ Content-Type: application/json
 {
 }
 ###
-GET http://localhost:8080/api/fetcher/18/history
+GET http://localhost:8080/api/fetcher/22/history
 Content-Type: application/json
 
 {
 }
 ###
-DELETE http://localhost:8080/api/fetcher/18
+DELETE http://localhost:8080/api/fetcher/22
 Content-Type: application/json
 
 {
 }
 
 ###
-PATCH http://localhost:8080/api/fetcher/19
+PATCH http://localhost:8080/api/fetcher/22
 Content-Type: application/json
 
 {

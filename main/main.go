@@ -5,14 +5,10 @@ import (
 	"Kamil-Ambroziak/logger"
 	"Kamil-Ambroziak/storage"
 	worker2 "Kamil-Ambroziak/worker"
-	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
-
 )
 
-var (
-	router = gin.Default()
-)
+
 func main() {
 
 	msql, err := storage.NewMySQL()
@@ -25,15 +21,8 @@ func main() {
 
 	worker := worker2.NewWorker()
 
-	api:= api.NewAPIServer(msql,worker)
+	api.NewAPIServer(msql,worker)
 
-	router.POST("/api/fetcher", api.AddFetcher)
-	router.PATCH("/api/fetcher/:id", api.UpdateFetcher)
-	router.DELETE("/api/fetcher/:id", api.DeleteFetcher)
-	router.GET("/api/fetcher", api.GetAllFetchers)
 
-	router.GET("/api/fetcher/:id/history", api.GetHistoryForFetcher)
-	//api.NewAPIServer(mySqlClient)
-	router.Run(":8080")
 
 }
