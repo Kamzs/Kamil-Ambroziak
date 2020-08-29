@@ -22,7 +22,6 @@ func (api *Api) AddFetcher(c *gin.Context) {
 		return
 	}
 
-	//todo implement
 	jobID, restErr := api.Worker.RegisterFetcher(&fetcher)
 	if restErr != nil {
 		c.JSON(restErr.Status(), restErr)
@@ -36,6 +35,7 @@ func (api *Api) AddFetcher(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, JsonWithID{Id: fetcher.Id})
 }
+
 func (api *Api) GetAllFetchers(c *gin.Context) {
 
 	found, getErr := api.Storage.FindAllFetchers()
@@ -53,7 +53,6 @@ func (api *Api) GetAllFetchers(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-//todo determine if pathing or full update
 func (api *Api) UpdateFetcher(c *gin.Context) {
 	fetcherId, idErr := getFetcherId(c.Param("id"))
 	if idErr != nil {
@@ -112,8 +111,6 @@ func (api *Api) DeleteFetcher(c *gin.Context) {
 	c.JSON(http.StatusOK, JsonWithID{Id: fetcherId})
 }
 
-//todo for fetching history
-
 func (api *Api) GetHistoryForFetcher(c *gin.Context) {
 
 	fetcherId, idErr := getFetcherId(c.Param("id"))
@@ -134,6 +131,5 @@ func (api *Api) GetHistoryForFetcher(c *gin.Context) {
 		resp[index].Duration=value.Duration
 		resp[index].Response=value.Response
 	}
-	//todo after implementation of new table for fetched data saving change output
 	c.JSON(http.StatusOK, resp)
 }

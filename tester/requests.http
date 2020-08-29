@@ -2,7 +2,7 @@ POST http://localhost:8080/api/fetcher
 Content-Type: application/json
 
 {
-  "url": "https://httpbin.org/range/15",
+  "url": "https://httpbin.org/range/10",
   "interval":10
 }
 
@@ -13,20 +13,20 @@ Content-Type: application/json
 {
 }
 ###
-GET http://localhost:8080/api/fetcher/17/history
+GET http://localhost:8080/api/fetcher/18/history
 Content-Type: application/json
 
 {
 }
 ###
-DELETE http://localhost:8080/api/fetcher/6
+DELETE http://localhost:8080/api/fetcher/18
 Content-Type: application/json
 
 {
 }
 
 ###
-PATCH http://localhost:8080/api/fetcher/4
+PATCH http://localhost:8080/api/fetcher/19
 Content-Type: application/json
 
 {
