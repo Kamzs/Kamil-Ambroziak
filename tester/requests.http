@@ -1,0 +1,29 @@
+POST http://localhost:8080/api/fetcher
+Content-Type: application/json
+
+{
+  "url": "https://httpbin.org/range/15",
+  "interval":10
+}
+
+###
+GET http://localhost:8080/api/fetcher
+Content-Type: application/json
+
+{
+}
+
+###
+DELETE http://localhost:8080/api/fetcher/9
+Content-Type: application/json
+
+{
+}
+
+###
+PATCH http://localhost:8080/api/fetcher/9
+Content-Type: application/json
+
+{
+  "interval":2
+}

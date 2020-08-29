@@ -1,8 +1,6 @@
 package utils
 
 import (
-	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 )
@@ -47,14 +45,6 @@ func NewRestError(message string, status int, err string, causes []interface{}) 
 	}
 }
 
-func NewRestErrorFromBytes(bytes []byte) (RestErr, error) {
-	var apiErr restErr
-	if err := json.Unmarshal(bytes, &apiErr); err != nil {
-		return nil, errors.New("invalid json")
-	}
-	return apiErr, nil
-}
-
 func NewBadRequestError(message string) RestErr {
 	return restErr{
 		ErrMessage: message,
@@ -68,14 +58,6 @@ func NewNotFoundError(message string) RestErr {
 		ErrMessage: message,
 		ErrStatus:  http.StatusNotFound,
 		ErrError:   "not_found",
-	}
-}
-
-func NewUnauthorizedError(message string) RestErr {
-	return restErr{
-		ErrMessage: message,
-		ErrStatus:  http.StatusUnauthorized,
-		ErrError:   "unauthorized",
 	}
 }
 
