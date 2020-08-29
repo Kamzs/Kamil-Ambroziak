@@ -1,6 +1,7 @@
 package api
 
 import (
+	fetchers "Kamil-Ambroziak"
 	"Kamil-Ambroziak/utils"
 	"strconv"
 )
@@ -14,4 +15,9 @@ func getFetcherId(fetcherIdParam string) (int64, utils.RestErr) {
 		return 0, utils.NewBadRequestError("fetcher id should be an int64")
 	}
 	return fetcherId, nil
+}
+func fillMissingFields(oldFetcher *fetchers.Fetcher, newFetcher *fetchers.Fetcher){
+
+	if newFetcher.Interval == 0 {newFetcher.Interval = oldFetcher.Interval}
+	if newFetcher.Url == "" {newFetcher.Url = oldFetcher.Url}
 }

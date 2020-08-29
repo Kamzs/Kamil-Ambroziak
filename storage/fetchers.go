@@ -4,24 +4,11 @@ import (
 	fetchers "Kamil-Ambroziak"
 	"Kamil-Ambroziak/logger"
 	"Kamil-Ambroziak/utils"
-
 	"errors"
-
 )
-
-const (
-	queryInsertFetcher = "INSERT INTO fetchers(url, interv) VALUES(?, ?);"
-	queryGetFetcher    = "SELECT id, url, interv FROM fetchers WHERE id=?;"
-	queryGetHistory    = ""
-
-	queryUpdateUser    = "UPDATE fetchers SET url=?, interv=? WHERE id=?;"
-	queryDeleteUser    = "DELETE FROM fetchers WHERE id=?;"
-	//todo change to select all
-	queryFindAll = "SELECT * FROM fetchers;"
-)
-
 
 func (db *MySQL) SaveFetcher(fetcher *fetchers.Fetcher) utils.RestErr {
+
 	stmt, err := db.client.Prepare(queryInsertFetcher)
 	if err != nil {
 		logger.Error("error when trying to prepare save fetcher statement", err)
@@ -29,7 +16,7 @@ func (db *MySQL) SaveFetcher(fetcher *fetchers.Fetcher) utils.RestErr {
 	}
 	defer stmt.Close()
 
-	insertResult, saveErr := stmt.Exec(fetcher.Url, fetcher.Interval)
+	insertResult, saveErr := stmt.Exec(fetcher.Url, fetcher.Interval, fetcher.JobID)
 	if saveErr != nil {
 		logger.Error("error when trying to save fetcher", saveErr)
 		return utils.NewInternalServerError("error when tying to save fetcher", errors.New("database error"))
@@ -45,14 +32,14 @@ func (db *MySQL) SaveFetcher(fetcher *fetchers.Fetcher) utils.RestErr {
 	return nil
 }
 func (db *MySQL) UpdateFetcher(fetcher *fetchers.Fetcher) utils.RestErr {
-	stmt, err := db.client.Prepare(queryUpdateUser)
+
+	stmt, err := db.client.Prepare(queryUpdateFetcher)
 	if err != nil {
 		logger.Error("error when trying to prepare update fetcher statement", err)
 		return utils.NewInternalServerError("error when tying to update fetcher", errors.New("database error"))
 	}
 	defer stmt.Close()
-
-	_, err = stmt.Exec(fetcher.Url, fetcher.Interval, fetcher.Id)
+	_, err = stmt.Exec(fetcher.Interval, fetcher.Url, fetcher.JobID, fetcher.Id)
 	if err != nil {
 		logger.Error("error when trying to update fetcher", err)
 		return utils.NewInternalServerError("error when tying to update fetcher", errors.New("database error"))
@@ -103,7 +90,8 @@ func (db *MySQL) FindAllFetchers() ([]fetchers.Fetcher, utils.RestErr) {
 	}
 	return results, nil
 }
-func (db *MySQL) GetHistoryForFetcher(fetcherId int64 ) (*fetchers.Fetcher, utils.RestErr) {
+
+func (db *MySQL) GetFetcher(fetcherId int64) (*fetchers.Fetcher, utils.RestErr) {
 	stmt, err := db.client.Prepare(queryGetFetcher)
 	if err != nil {
 		logger.Error("error when trying to prepare get fetcher statement", err)
@@ -112,10 +100,10 @@ func (db *MySQL) GetHistoryForFetcher(fetcherId int64 ) (*fetchers.Fetcher, util
 	defer stmt.Close()
 
 	result := stmt.QueryRow(fetcherId)
-	fetcher:= fetchers.Fetcher{}
-	if getErr := result.Scan(&fetcher.Id, &fetcher.Url, &fetcher.Interval); getErr != nil {
+	fetcher := fetchers.Fetcher{}
+	if getErr := result.Scan(&fetcher.Url, &fetcher.Interval, &fetcher.JobID); getErr != nil {
 		logger.Error("error when trying to get fetcher by id", getErr)
 		return nil, utils.NewInternalServerError("error when tying to get fetcher", errors.New("database error"))
 	}
-	return &fetcher,nil
+	return &fetcher, nil
 }

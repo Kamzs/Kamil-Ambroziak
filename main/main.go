@@ -4,6 +4,7 @@ import (
 	"Kamil-Ambroziak/api"
 	"Kamil-Ambroziak/logger"
 	"Kamil-Ambroziak/storage"
+	"Kamil-Ambroziak/worker"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 )
@@ -21,7 +22,8 @@ func main() {
 		return
 	}
 
-	api:= api.NewAPIServer(msql)
+	worker := worker.NewWorker()
+	api:= api.NewAPIServer(msql,worker)
 
 	router.POST("/api/fetcher", api.AddFetcher)
 	router.PATCH("/api/fetcher/:id", api.UpdateFetcher)
@@ -30,6 +32,6 @@ func main() {
 
 	router.GET("/api/fetcher/:id/history", api.GetHistoryForFetcher)
 	//api.NewAPIServer(mySqlClient)
-	router.Run(":8082")
+	router.Run(":8080")
 
 }

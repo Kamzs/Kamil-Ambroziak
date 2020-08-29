@@ -2,6 +2,7 @@ package fetchers
 
 import (
 	"Kamil-Ambroziak/utils"
+	"github.com/robfig/cron/v3"
 	"strings"
 )
 
@@ -12,15 +13,35 @@ type Storage interface {
 	UpdateFetcher(fetcher *Fetcher) utils.RestErr
 	DeleteFetcher(fetcherId int64) utils.RestErr
 	FindAllFetchers() ([]Fetcher, utils.RestErr)
-	GetHistoryForFetcher(fetcherID int64) (*Fetcher,utils.RestErr)
+	GetFetcher(fetcherId int64 ) (*Fetcher, utils.RestErr)
+	GetHistoryForFetcher(fetcherId int64 ) (HistoryElementsResponse, utils.RestErr)
 }
+
+type Worker interface {
+	RegisterFetcher(fetcher *Fetcher) (cron.EntryID, utils.RestErr)
+	DeregisterFetcher(jobId cron.EntryID)
+	UpdateFetcher(fetcher *Fetcher) utils.RestErr
+}
+
 type Fetcher struct {
-	Id       int64  `json:"id"`
+	Id       int64 `json:"id"`
+	JobID    int64
 	Url      string `json:"url"`
 	Interval int64  `json:"interval"`
 }
 
-type Fetchers []Fetcher
+type HistoryElement struct {
+	Id        int64  `json:"id"`
+	Response  string `json:"url"`
+	Duration  int64  `json:"duration"`
+	CreatedAt int64  `json:"created_at"`
+}
+type HistoryElementResponse struct {
+	Response  string `json:"url"`
+	Duration  int64  `json:"duration"`
+	CreatedAt int64  `json:"created_at"`
+}
+type HistoryElementsResponse []HistoryElementResponse
 
 func (fetcher *Fetcher) Validate() utils.RestErr {
 

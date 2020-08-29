@@ -4,6 +4,7 @@ import (
 	fetchers "Kamil-Ambroziak"
 	"Kamil-Ambroziak/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/robfig/cron/v3"
 	"net/http"
 )
 
@@ -20,14 +21,18 @@ func (api *Api) AddFetcher(c *gin.Context) {
 		c.JSON(restErr.Status(), restErr)
 		return
 	}
+
+	//todo implement
+	jobID, restErr := api.Worker.RegisterFetcher(&fetcher)
+	if restErr != nil {
+		c.JSON(restErr.Status(), restErr)
+	}
+	fetcher.JobID = int64(jobID)
 	if err := api.Storage.SaveFetcher(&fetcher); err != nil {
 		c.JSON(err.Status(), err)
+		api.Worker.DeregisterFetcher(cron.EntryID(fetcher.JobID))
 		return
 	}
-	//todo implement
-	//registerWorker()
-
-	//todo add worker
 
 	c.JSON(http.StatusCreated, JsonWithID{Id: fetcher.Id})
 }
@@ -49,22 +54,36 @@ func (api *Api) UpdateFetcher(c *gin.Context) {
 		return
 	}
 
-	var fetcher fetchers.Fetcher
-	if err := c.ShouldBindJSON(&fetcher); err != nil {
+	var newFetcher fetchers.Fetcher
+	if err := c.ShouldBindJSON(&newFetcher); err != nil {
 		restErr := utils.NewBadRequestError("invalid json body")
 		c.JSON(restErr.Status(), restErr)
 		return
 	}
 
-	fetcher.Id = fetcherId
-	//todo should return updated row
-	err := api.Storage.UpdateFetcher(&fetcher)
+	oldFetcher, restErr := api.Storage.GetFetcher(fetcherId)
+	if restErr !=nil {
+		c.JSON(restErr.Status(), restErr)
+	}
+
+	oldJobId := oldFetcher.JobID
+
+	fillMissingFields(oldFetcher,&newFetcher)
+
+	newJobId, err := api.Worker.RegisterFetcher(&newFetcher)
+	if err != nil {
+		c.JSON(restErr.Status(), restErr)
+	}
+	api.Worker.DeregisterFetcher(cron.EntryID(oldJobId))
+
+	newFetcher.Id = fetcherId
+	newFetcher.JobID = int64(newJobId)
+	err = api.Storage.UpdateFetcher(&newFetcher)
 	if err != nil {
 		c.JSON(err.Status(), err)
 		return
 	}
-	//todo should return updated row
-	c.JSON(http.StatusOK, nil)
+	c.JSON(http.StatusOK, JsonWithID{Id: newFetcher.Id})
 }
 
 func (api *Api) DeleteFetcher(c *gin.Context) {
@@ -73,6 +92,11 @@ func (api *Api) DeleteFetcher(c *gin.Context) {
 		c.JSON(idErr.Status(), idErr)
 		return
 	}
+	fetcher, err := api.Storage.GetFetcher(fetcherId)
+	if err != nil {
+		c.JSON(err.Status(), err)
+	}
+	api.Worker.DeregisterFetcher(cron.EntryID(fetcher.JobID))
 
 	if err := api.Storage.DeleteFetcher(fetcherId); err != nil {
 		c.JSON(err.Status(), err)

@@ -6,17 +6,12 @@ import (
 
 type Api struct{
 	Storage fetchers.Storage
+	Worker fetchers.Worker
 }
 
-func WithStorageClient(client fetchers.Storage) func(*Api) {
-	return func(a *Api) {
-		a.Storage = client
-	}
-}
-
-func NewAPIServer(mySqlClient fetchers.Storage) *Api {
+func NewAPIServer(mySqlClient fetchers.Storage, worker fetchers.Worker) *Api {
 	return &Api{
 		Storage: mySqlClient,
+		Worker: worker,
 	}
 }
-

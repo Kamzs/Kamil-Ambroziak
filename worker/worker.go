@@ -2,37 +2,39 @@ package worker
 
 
 import (
-
+	fetchers "Kamil-Ambroziak"
+	"Kamil-Ambroziak/utils"
 	"fmt"
-	"github.com/robfig/cron"
-	"time"
+	"github.com/robfig/cron/v3"
 )
 
-//v0.0.1
-func registerWorker(){
-	c := cron.New()
-
-	c.AddFunc("*/1 * * * *", func() { fmt.Println("getPage1 1 sec") })
-
-	// Start cron with one scheduled job
-	c.Start()
-	time.Sleep(2 * time.Minute)
-
-	// Funcs may also be added to a running Cron
-	//not working
-	//	entryID2, _ := c.AddFunc("*/2 * * * *", func() { fmt.Println("getPage2 2 sec") })
-	c.AddFunc("*/2 * * * *", func() { fmt.Println("getPage2 2 sec") })
-	time.Sleep(5 * time.Minute)
-
-	//Remove Job2 and add new Job2 that run every 1 minute
-	//not working
-	//c.Remove(entryID2)
-	fmt.Println("getPage2 2 sec deleted")
-	c.AddFunc("*/1 * * * *", func() { fmt.Println("getPage2 1 sec")})
-	time.Sleep(5 * time.Minute)
-
-	//todo implement fetching data
-	//todo implement saving fetched data
-
-
+func NewWorker () *worker{
+	c := cron.New(cron.WithSeconds())
+	go c.Run()
+	return &worker{
+		cron: c,
+	}
 }
+
+type worker struct {
+	cron *cron.Cron
+}
+
+func (c *worker) RegisterFetcher(fetcher *fetchers.Fetcher) (cron.EntryID, utils.RestErr){
+	jobID,err := c.cron.AddFunc(fmt.Sprintf("*/%v * * * * *", fetcher.Interval), func() { fmt.Println("function") })
+	if err!= nil {
+		return 0,utils.NewInternalServerError("job could not be registered by worker", err)
+	}
+	return jobID,nil
+}
+func (c *worker)DeregisterFetcher(jobID cron.EntryID){
+	c.cron.Remove(jobID)
+}
+func (c *worker)UpdateFetcher(fetcher *fetchers.Fetcher) utils.RestErr{
+	return nil
+}
+
+
+
+//todo implement fetching data
+//todo implement saving fetched data
