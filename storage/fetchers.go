@@ -1,23 +1,28 @@
-package fetchers
+package storage
 
 import (
-	"Kamil-Ambroziak/datasources/mysql"
+	fetchers "Kamil-Ambroziak"
 	"Kamil-Ambroziak/logger"
 	"Kamil-Ambroziak/utils"
+
 	"errors"
+
 )
 
 const (
-	queryInsertUser = "INSERT INTO fetchers(url, interv) VALUES(?, ?);"
-	queryGetUser    = "SELECT id, url, interv FROM fetchers WHERE id=?;"
-	queryUpdateUser = "UPDATE fetchers SET url=?, interv=? WHERE id=?;"
-	queryDeleteUser = "DELETE FROM fetchers WHERE id=?;"
+	queryInsertFetcher = "INSERT INTO fetchers(url, interv) VALUES(?, ?);"
+	queryGetFetcher    = "SELECT id, url, interv FROM fetchers WHERE id=?;"
+	queryGetHistory    = ""
+
+	queryUpdateUser    = "UPDATE fetchers SET url=?, interv=? WHERE id=?;"
+	queryDeleteUser    = "DELETE FROM fetchers WHERE id=?;"
 	//todo change to select all
 	queryFindAll = "SELECT * FROM fetchers;"
 )
 
-func (fetcher *Fetcher) SaveFetcher() utils.RestErr {
-	stmt, err := mysql.Client.Prepare(queryInsertUser)
+
+func (db *MySQL) SaveFetcher(fetcher *fetchers.Fetcher) utils.RestErr {
+	stmt, err := db.client.Prepare(queryInsertFetcher)
 	if err != nil {
 		logger.Error("error when trying to prepare save fetcher statement", err)
 		return utils.NewInternalServerError("error when tying to save fetcher", errors.New("database error"))
@@ -39,9 +44,8 @@ func (fetcher *Fetcher) SaveFetcher() utils.RestErr {
 
 	return nil
 }
-
-func (fetcher *Fetcher) UpdateFetcher() utils.RestErr {
-	stmt, err := mysql.Client.Prepare(queryUpdateUser)
+func (db *MySQL) UpdateFetcher(fetcher *fetchers.Fetcher) utils.RestErr {
+	stmt, err := db.client.Prepare(queryUpdateUser)
 	if err != nil {
 		logger.Error("error when trying to prepare update fetcher statement", err)
 		return utils.NewInternalServerError("error when tying to update fetcher", errors.New("database error"))
@@ -55,24 +59,23 @@ func (fetcher *Fetcher) UpdateFetcher() utils.RestErr {
 	}
 	return nil
 }
-
-func (fetcher *Fetcher) DeleteFetcher() utils.RestErr {
-	stmt, err := mysql.Client.Prepare(queryDeleteUser)
+func (db *MySQL) DeleteFetcher(fetcherId int64) utils.RestErr {
+	stmt, err := db.client.Prepare(queryDeleteUser)
 	if err != nil {
 		logger.Error("error when trying to prepare delete fetcher statement", err)
 		return utils.NewInternalServerError("error when tying to update fetcher", errors.New("database error"))
 	}
 	defer stmt.Close()
 
-	if _, err = stmt.Exec(fetcher.Id); err != nil {
+	if _, err = stmt.Exec(fetcherId); err != nil {
 		logger.Error("error when trying to delete fetcher", err)
 		return utils.NewInternalServerError("error when tying to save fetcher", errors.New("database error"))
 	}
 	return nil
 }
 
-func (fetcher *Fetcher) FindAllFetchers() ([]Fetcher, utils.RestErr) {
-	stmt, err := mysql.Client.Prepare(queryFindAll)
+func (db *MySQL) FindAllFetchers() ([]fetchers.Fetcher, utils.RestErr) {
+	stmt, err := db.client.Prepare(queryFindAll)
 	if err != nil {
 		logger.Error("error when trying to prepare find users by status statement", err)
 		return nil, utils.NewInternalServerError("error when tying to get fetcher", errors.New("database error"))
@@ -86,9 +89,9 @@ func (fetcher *Fetcher) FindAllFetchers() ([]Fetcher, utils.RestErr) {
 	}
 	defer rows.Close()
 
-	results := make([]Fetcher, 0)
+	results := make([]fetchers.Fetcher, 0)
 	for rows.Next() {
-		var fetcher Fetcher
+		var fetcher fetchers.Fetcher
 		if err := rows.Scan(&fetcher.Id, &fetcher.Url, &fetcher.Interval); err != nil {
 			logger.Error("error when scan fetcher row into fetcher struct", err)
 			return nil, utils.NewInternalServerError("error when tying to gett fetcher", errors.New("database error"))
@@ -100,19 +103,19 @@ func (fetcher *Fetcher) FindAllFetchers() ([]Fetcher, utils.RestErr) {
 	}
 	return results, nil
 }
-func (fetcher *Fetcher) GetHistoryForFetcher() utils.RestErr {
-	stmt, err := mysql.Client.Prepare(queryGetUser)
+func (db *MySQL) GetHistoryForFetcher(fetcherId int64 ) (*fetchers.Fetcher, utils.RestErr) {
+	stmt, err := db.client.Prepare(queryGetFetcher)
 	if err != nil {
 		logger.Error("error when trying to prepare get fetcher statement", err)
-		return utils.NewInternalServerError("error when tying to get fetcher", errors.New("database error"))
+		return nil, utils.NewInternalServerError("error when tying to get fetcher", errors.New("database error"))
 	}
 	defer stmt.Close()
 
-	result := stmt.QueryRow(fetcher.Id)
-
+	result := stmt.QueryRow(fetcherId)
+	fetcher:= fetchers.Fetcher{}
 	if getErr := result.Scan(&fetcher.Id, &fetcher.Url, &fetcher.Interval); getErr != nil {
 		logger.Error("error when trying to get fetcher by id", getErr)
-		return utils.NewInternalServerError("error when tying to get fetcher", errors.New("database error"))
+		return nil, utils.NewInternalServerError("error when tying to get fetcher", errors.New("database error"))
 	}
-	return nil
+	return &fetcher,nil
 }

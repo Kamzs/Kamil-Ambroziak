@@ -1,25 +1,13 @@
-package controllers
+package api
 
 import (
-	"Kamil-Ambroziak/domain/fetchers"
-	"Kamil-Ambroziak/services"
+	fetchers "Kamil-Ambroziak"
 	"Kamil-Ambroziak/utils"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"strconv"
 )
 
-//todo add api struct which can be used to pass worker??
-
-func getFetcherId(fetcherIdParam string) (int64, utils.RestErr) {
-	fetcherId, fetcherErr := strconv.ParseInt(fetcherIdParam, 10, 64)
-	if fetcherErr != nil {
-		return 0, utils.NewBadRequestError("fetcher id should be an int64")
-	}
-	return fetcherId, nil
-}
-
-func AddFetcher(c *gin.Context) {
+func (api *Api) AddFetcher(c *gin.Context) {
 	var fetcher fetchers.Fetcher
 	if err := c.ShouldBindJSON(&fetcher); err != nil {
 		restErr := utils.NewBadRequestError("invalid json body")
@@ -27,29 +15,34 @@ func AddFetcher(c *gin.Context) {
 		return
 	}
 
-	result, saveErr := services.FetchersService.CreateFetcher(fetcher)
-	if saveErr != nil {
-		c.JSON(saveErr.Status(), saveErr)
+	if err := fetcher.Validate(); err != nil {
+		restErr := utils.NewBadRequestError("validation failed")
+		c.JSON(restErr.Status(), restErr)
 		return
 	}
+	if err := api.Storage.SaveFetcher(&fetcher); err != nil {
+		c.JSON(err.Status(), err)
+		return
+	}
+	//todo implement
+	//registerWorker()
 
 	//todo add worker
 
-	c.JSON(http.StatusCreated, JsonWithID{Id: result.Id})
+	c.JSON(http.StatusCreated, JsonWithID{Id: fetcher.Id})
 }
-func GetAllFetchers(c *gin.Context) {
+func (api *Api) GetAllFetchers(c *gin.Context) {
 
-	fetchers, getErr := services.FetchersService.FindAllFetchers()
+	fetchers, getErr := api.Storage.FindAllFetchers()
 	if getErr != nil {
 		c.JSON(getErr.Status(), getErr)
 		return
 	}
-
 	c.JSON(http.StatusOK, fetchers)
 }
 
 //todo determine if pathing or full update
-func UpdateFetcher(c *gin.Context) {
+func (api *Api) UpdateFetcher(c *gin.Context) {
 	fetcherId, idErr := getFetcherId(c.Param("id"))
 	if idErr != nil {
 		c.JSON(idErr.Status(), idErr)
@@ -64,44 +57,45 @@ func UpdateFetcher(c *gin.Context) {
 	}
 
 	fetcher.Id = fetcherId
-
-	result, err := services.FetchersService.UpdateFetcher(fetcher)
+	//todo should return updated row
+	err := api.Storage.UpdateFetcher(&fetcher)
 	if err != nil {
 		c.JSON(err.Status(), err)
 		return
 	}
-	c.JSON(http.StatusOK, result)
+	//todo should return updated row
+	c.JSON(http.StatusOK, nil)
 }
 
-func DeleteFetcher(c *gin.Context) {
+func (api *Api) DeleteFetcher(c *gin.Context) {
 	fetcherId, idErr := getFetcherId(c.Param("id"))
 	if idErr != nil {
 		c.JSON(idErr.Status(), idErr)
 		return
 	}
 
-	if err := services.FetchersService.DeleteFetcher(fetcherId); err != nil {
+	if err := api.Storage.DeleteFetcher(fetcherId); err != nil {
 		c.JSON(err.Status(), err)
 		return
 	}
-	c.JSON(http.StatusOK,  JsonWithID{Id: fetcherId})
+	c.JSON(http.StatusOK, JsonWithID{Id: fetcherId})
 }
 
 //todo for fetching history
 
-func GetHistoryForFetcher(c *gin.Context) {
+func (api *Api) GetHistoryForFetcher(c *gin.Context) {
 
-	userId, idErr := getFetcherId(c.Param("id"))
+	fetcherId, idErr := getFetcherId(c.Param("id"))
 	if idErr != nil {
 		c.JSON(idErr.Status(), idErr)
 		return
 	}
-	fetchingHistory, getErr := services.FetchersService.GetHistoryForFetcher(userId)
+	fetcher, getErr := api.Storage.GetHistoryForFetcher(fetcherId)
 	if getErr != nil {
 		c.JSON(getErr.Status(), getErr)
 		return
 	}
 
 	//todo after implementation of new table for fetched data saving change output
-	c.JSON(http.StatusOK, fetchingHistory)
+	c.JSON(http.StatusOK, fetcher)
 }
