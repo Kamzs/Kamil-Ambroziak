@@ -3,32 +3,41 @@ Content-Type: application/json
 
 {
   "url": "https://httpbin.org/range/10",
-  "interval":30
+  "interval":8
 }
 
+###
+POST http://localhost:8080/api/fetcher
+Content-Type: application/json
+
+{
+  "url": "https://httpbin.org/delay/4",
+  "interval":8
+}
+###
+GET http://localhost:8080/api/fetcher/58/history
+Content-Type: application/json
+
+{
+}
 ###
 GET http://localhost:8080/api/fetcher
 Content-Type: application/json
 
 {
 }
-###
-GET http://localhost:8080/api/fetcher/22/history
-Content-Type: application/json
 
-{
-}
 ###
-DELETE http://localhost:8080/api/fetcher/22
+DELETE http://localhost:8080/api/fetcher/28
 Content-Type: application/json
 
 {
 }
 
 ###
-PATCH http://localhost:8080/api/fetcher/22
+PATCH http://localhost:8080/api/fetcher/31
 Content-Type: application/json
 
 {
-  "interval":2
+  "interval":6
 }

@@ -38,12 +38,12 @@ type GetAllFetchersResponse struct {
 type HistoryElement struct {
 	Id        int64  `json:"id"`
 	Response  string `json:"response"`
-	Duration  int64  `json:"duration"`
+	Duration  float64  `json:"duration"`
 	CreatedAt int64  `json:"created_at"`
 }
 type HistoryElementResponse struct {
 	Response  string `json:"response"`
-	Duration  int64  `json:"duration"`
+	Duration  float64  `json:"duration"`
 	CreatedAt int64  `json:"created_at"`
 }
 
