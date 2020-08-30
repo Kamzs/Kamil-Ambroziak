@@ -72,7 +72,7 @@ func doJob(fetcher *fetchers.Fetcher) {
 				logger.Error(fmt.Sprintf("history for fetcher = fetcherId %v could not be saved", fetcher.Id), err)
 			}
 		}
-		logger.Error(fmt.Sprintf("page %s could not be raeched", fetcher.Url), err)
+		logger.Error(fmt.Sprintf("page %s could not be reached", fetcher.Url), err)
 	} else {
 		if res.StatusCode == http.StatusOK {
 			bodyBytes, err := ioutil.ReadAll(res.Body)
