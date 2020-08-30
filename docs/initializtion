@@ -2,17 +2,17 @@ CREATE DATABASE db;
 USE db;
 DROP TABLE IF EXISTS `fetchers`;
 CREATE TABLE `fetchers` (
-  `id` int(6) unsigned NOT NULL AUTO_INCREMENT,
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
   `url` varchar(30) NOT NULL,
   `inter` varchar(30) NOT NULL,
-  `job_id` int(15) NOT NULL,
+  `job_id` int NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 
 DROP TABLE IF EXISTS `history`;
 CREATE TABLE `history` (
-  `id` int(6) NOT NULL,
+  `id` int NOT NULL,
   `response` varchar(5000),
   `duration` float NOT NULL,
-  `created_at` varchar(30) NOT NULL
+  `created_at` int NOT NULL
 ) DEFAULT CHARSET=latin1;

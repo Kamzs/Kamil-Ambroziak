@@ -5,7 +5,6 @@ import (
 	"Kamil-Ambroziak/storage"
 	"Kamil-Ambroziak/utils"
 	"context"
-	"crypto/tls"
 	"fmt"
 	"github.com/robfig/cron/v3"
 	"io/ioutil"
@@ -53,9 +52,9 @@ func doJob(fetcher *fetchers.Fetcher) {
 		fmt.Println("error request")
 		return
 	}
-	var start, connect, dns, tlsHandshake time.Time
+	//var start, connect, dns, tlsHandshake time.Time
 	trace := &httptrace.ClientTrace{
-		DNSStart: func(dsi httptrace.DNSStartInfo) { dns = time.Now() },
+/*		DNSStart: func(dsi httptrace.DNSStartInfo) { dns = time.Now() },
 		DNSDone: func(ddi httptrace.DNSDoneInfo) {
 			fmt.Printf("DNS Done: %v\n", time.Since(dns))
 		},
@@ -72,15 +71,16 @@ func doJob(fetcher *fetchers.Fetcher) {
 
 		GotFirstResponseByte: func() {
 			fmt.Printf("Time from start to first byte: %v\n", time.Since(start))
-		},
+		},*/
 	}
 	ctxTimer := httptrace.WithClientTrace(ctxTimeout, trace)
+
 	historyEl := &fetchers.HistoryElement{
 		Id:        fetcher.Id,
 		CreatedAt: time.Now().Unix(),
 	}
 	//res, err := http.DefaultClient.Do(req.WithContext(ctxTimer))
-	start = time.Now()
+	start := time.Now()
 	res, err := http.DefaultTransport.RoundTrip(req.WithContext(ctxTimer))
 
 	totalResponseTime := time.Since(start)
