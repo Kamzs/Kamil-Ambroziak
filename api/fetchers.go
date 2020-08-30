@@ -9,6 +9,7 @@ import (
 )
 
 func (api *Api) AddFetcher(c *gin.Context) {
+
 	var fetcher fetchers.Fetcher
 	if err := c.ShouldBindJSON(&fetcher); err != nil {
 		restErr := utils.NewBadRequestError("invalid json body")
@@ -20,7 +21,6 @@ func (api *Api) AddFetcher(c *gin.Context) {
 		c.JSON(restErr.Status(), restErr)
 		return
 	}
-
 	jobID, restErr := api.Worker.RegisterFetcher(&fetcher)
 	if restErr != nil {
 		c.JSON(restErr.Status(), restErr)
@@ -31,7 +31,6 @@ func (api *Api) AddFetcher(c *gin.Context) {
 		api.Worker.DeregisterFetcher(cron.EntryID(fetcher.JobID))
 		return
 	}
-
 	c.JSON(http.StatusCreated, JsonWithID{Id: fetcher.Id})
 }
 
@@ -42,12 +41,12 @@ func (api *Api) GetAllFetchers(c *gin.Context) {
 		c.JSON(getErr.Status(), getErr)
 		return
 	}
-	var resp []fetchers.GetAllFetchersResponse
-	for index,value := range found {
-		resp = append(resp,fetchers.GetAllFetchersResponse{})
-		resp[index].Id=value.Id
-		resp[index].Interval=value.Interval
-		resp[index].Url=value.Url
+	var resp []GetAllFetchersResponse
+	for index, value := range found {
+		resp = append(resp, GetAllFetchersResponse{})
+		resp[index].Id = value.Id
+		resp[index].Interval = value.Interval
+		resp[index].Url = value.Url
 	}
 	c.JSON(http.StatusOK, resp)
 }
@@ -67,7 +66,7 @@ func (api *Api) UpdateFetcher(c *gin.Context) {
 	}
 
 	oldFetcher, restErr := api.Storage.GetFetcher(fetcherId)
-	if restErr !=nil {
+	if restErr != nil {
 		c.JSON(restErr.Status(), restErr)
 	}
 
@@ -77,7 +76,7 @@ func (api *Api) UpdateFetcher(c *gin.Context) {
 		c.JSON(restErr.Status(), restErr)
 		return
 	}
-	fillMissingFields(oldFetcher,&newFetcher)
+	fillMissingFields(oldFetcher, &newFetcher)
 
 	newJobId, restErr := api.Worker.RegisterFetcher(&newFetcher)
 	if restErr != nil {
@@ -92,9 +91,9 @@ func (api *Api) UpdateFetcher(c *gin.Context) {
 		c.JSON(restErr.Status(), restErr)
 		return
 	}
-	c.JSON(http.StatusOK, fetchers.FetcherUpdateResponse{
-		Id: newFetcher.Id,
-		Url: newFetcher.Url,
+	c.JSON(http.StatusOK, FetcherUpdateResponse{
+		Id:       newFetcher.Id,
+		Url:      newFetcher.Url,
 		Interval: newFetcher.Interval,
 	})
 }
@@ -131,12 +130,12 @@ func (api *Api) GetHistoryForFetcher(c *gin.Context) {
 		return
 	}
 
-	var resp []fetchers.HistoryElementResponse
-	for index,value := range fetchersSlice {
-		resp = append(resp, fetchers.HistoryElementResponse{})
-		resp[index].CreatedAt=value.CreatedAt
-		resp[index].Duration=value.Duration
-		resp[index].Response=value.Response
+	var resp []HistoryElementResponse
+	for index, value := range fetchersSlice {
+		resp = append(resp, HistoryElementResponse{})
+		resp[index].CreatedAt = value.CreatedAt
+		resp[index].Duration = value.Duration
+		resp[index].Response = value.Response
 	}
 	c.JSON(http.StatusOK, resp)
 }

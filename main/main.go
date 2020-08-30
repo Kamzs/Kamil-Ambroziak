@@ -19,5 +19,7 @@ func main() {
 		return
 	}
 	worker := worker.NewWorker()
-	api.NewAPIServer(msql,worker)
+	api := api.NewAPIServer(msql,worker)
+	api.Router.Run(":8080")
+
 }

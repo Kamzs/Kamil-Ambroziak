@@ -10,21 +10,22 @@ import (
 type Api struct{
 	Storage fetchers.Storage
 	Worker fetchers.Worker
+	Router *gin.Engine
 }
 
-func NewAPIServer(mySqlClient fetchers.Storage, worker fetchers.Worker) {
+func NewAPIServer(mySqlClient fetchers.Storage, worker fetchers.Worker) *Api {
 	api := &Api{
 		Storage: mySqlClient,
 		Worker: worker,
+		Router: gin.Default(),
 	}
-	router := gin.Default()
-	router.Use(checkSize)
-	router.POST("/api/fetcher", api.AddFetcher)
-	router.PATCH("/api/fetcher/:id", api.UpdateFetcher)
-	router.DELETE("/api/fetcher/:id", api.DeleteFetcher)
-	router.GET("/api/fetcher", api.GetAllFetchers)
-	router.GET("/api/fetcher/:id/history", api.GetHistoryForFetcher)
-	router.Run(":8080")
+	api.Router.Use(checkSize)
+	api.Router.POST("/api/fetcher", api.AddFetcher)
+	api.Router.PATCH("/api/fetcher/:id", api.UpdateFetcher)
+	api.Router.DELETE("/api/fetcher/:id", api.DeleteFetcher)
+	api.Router.GET("/api/fetcher", api.GetAllFetchers)
+	api.Router.GET("/api/fetcher/:id/history", api.GetHistoryForFetcher)
+	return api
 }
 
 func checkSize(c *gin.Context){
