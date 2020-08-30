@@ -11,9 +11,6 @@ import (
 	"testing"
 )
 
-const (
-	wrongId = "wrongId"
-)
 
 //test names
 const (
