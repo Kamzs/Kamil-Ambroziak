@@ -29,7 +29,7 @@ func NewAPIServer(mySqlClient fetchers.Storage, worker fetchers.Worker) {
 
 func checkSize(c *gin.Context){
 	size := c.Request.ContentLength
-	if size > 10 {
+	if size > 1024 {
 		c.AbortWithStatusJSON(http.StatusRequestEntityTooLarge,utils.NewRestError("entity too large",http.StatusRequestEntityTooLarge,"payload can be max 1024 bytes",nil))
 		return
 	}
