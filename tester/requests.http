@@ -15,7 +15,7 @@ Content-Type: application/json
   "interval":8
 }
 ###
-GET http://localhost:8080/api/fetcher/58/history
+GET http://localhost:8080/api/fetcher/68/history
 Content-Type: application/json
 
 {

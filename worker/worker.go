@@ -5,12 +5,14 @@ import (
 	"Kamil-Ambroziak/storage"
 	"Kamil-Ambroziak/utils"
 	"context"
+	"crypto/tls"
 	"fmt"
 	"github.com/robfig/cron/v3"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/http/httptrace"
 	"time"
 )
 var storageCli fetchers.Storage
@@ -124,20 +126,44 @@ func doJob3(fetcher *fetchers.Fetcher) {
 }
 //working
 func doJob (fetcher *fetchers.Fetcher){
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctxTimeout, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	req, err := http.NewRequest("GET", fetcher.Url, nil)
 	if err != nil {
 		fmt.Println("error request")
 		return
 	}
+	var start, connect, dns, tlsHandshake time.Time
+	trace := &httptrace.ClientTrace{
+		DNSStart: func(dsi httptrace.DNSStartInfo) { dns = time.Now() },
+		DNSDone: func(ddi httptrace.DNSDoneInfo) {
+			fmt.Printf("DNS Done: %v\n", time.Since(dns))
+		},
+
+		TLSHandshakeStart: func() { tlsHandshake = time.Now() },
+		TLSHandshakeDone: func(cs tls.ConnectionState, err error) {
+			fmt.Printf("TLS Handshake: %v\n", time.Since(tlsHandshake))
+		},
+
+		ConnectStart: func(network, addr string) { connect = time.Now() },
+		ConnectDone: func(network, addr string, err error) {
+			fmt.Printf("Connect time: %v\n", time.Since(connect))
+		},
+
+		GotFirstResponseByte: func() {
+			fmt.Printf("Time from start to first byte: %v\n", time.Since(start))
+		},
+	}
+	ctxTimer := httptrace.WithClientTrace(ctxTimeout,trace)
 	historyEl := &fetchers.HistoryElement{
 		Id: fetcher.Id,
 		CreatedAt: time.Now().Unix(),
 	}
-	start := time.Now().Nanosecond()
-	res, err := http.DefaultClient.Do(req.WithContext(ctx))
-	end := time.Now().Nanosecond()
+	//res, err := http.DefaultClient.Do(req.WithContext(ctxTimer))
+	start = time.Now()
+	res, err := http.DefaultTransport.RoundTrip(req.WithContext(ctxTimer))
+
+	totalResponseTime := time.Since(start)
 	if err != nil {
 		fmt.Println("error")
 		historyEl.Response = ""
@@ -151,12 +177,12 @@ func doJob (fetcher *fetchers.Fetcher){
 				return
 			}
 			historyEl.Response = string(bodyBytes)
-			nanoseconds := end - start
+/*			nanoseconds := totalResponseTime - start
 			//duration := time.Duration(nanosecods)
-			duration := float64(nanoseconds)/float64(time.Second)
-			fmt.Println(duration)
-			fmt.Printf("%.2f", duration)
-			historyEl.Duration = duration
+			duration := float64(nanoseconds)/float64(time.Second)*/
+/*			fmt.Println(duration)
+			fmt.Printf("%.2f", duration)*/
+			historyEl.Duration = totalResponseTime.Seconds()
 		}
 		_ = storageCli.SaveHistoryForFetcher(historyEl)
 	}
