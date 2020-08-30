@@ -11,11 +11,11 @@ POST http://localhost:8080/api/fetcher
 Content-Type: application/json
 
 {
-  "url": "https://httpbin.org/delay/4",
-  "interval":8
+  "url": "https://httpbin.org/delay/5",
+  "interval":2
 }
 ###
-GET http://localhost:8080/api/fetcher/68/history
+GET http://localhost:8080/api/fetcher/78/history
 Content-Type: application/json
 
 {
