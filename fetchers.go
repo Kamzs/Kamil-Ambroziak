@@ -28,13 +28,13 @@ type Fetcher struct {
 	Url      string `json:"url"`
 	Interval int64  `json:"interval"`
 }
+
 type HistoryElement struct {
 	Id        int64   `json:"id"`
 	Response  string  `json:"response"`
 	Duration  float64 `json:"duration"`
 	CreatedAt int64   `json:"created_at"`
 }
-
 
 func (fetcher *Fetcher) Validate(update bool) utils.RestErr {
 	checkInterval := true

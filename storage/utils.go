@@ -10,5 +10,7 @@ const (
 	//history
 	queryInsertHistoryElement = "INSERT INTO history(id, response, duration, created_at) VALUES(?, ?, ?, ?);"
 	queryGetHistory    = "SELECT id, response, duration, created_at FROM history WHERE id=?;"
-
+)
+const (
+	ErrorNoRows = "sql: no rows in result set"
 )

@@ -8,6 +8,8 @@ import (
 
 const (
 	FetcherId       = 1
+	WrongId       = "asd"
+	CreatedAt       = 1598806860
 	exampleErrorMsg = "error"
 	okUrl = "https://httpbin.org/range/10"
 	badUrl = "ttpbin.org/range/10"
@@ -110,5 +112,5 @@ func (db *MySQLMock) GetHistoryForFetcher(fetcherId int64 ) ([]fetchers.HistoryE
 	if db.GetHistoryForFetcherError {
 		return nil,utils.NewInternalServerError(exampleErrorMsg, errors.New(exampleErrorMsg))
 	}
-	return []fetchers.HistoryElement{},nil
+	return []fetchers.HistoryElement{{CreatedAt: CreatedAt}},nil
 }

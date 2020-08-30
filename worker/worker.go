@@ -40,6 +40,7 @@ func (w *worker) RegisterFetcher(fetcher *fetchers.Fetcher) (cron.EntryID, utils
 	}
 	return jobID, nil
 }
+
 func (w *worker) DeregisterFetcher(jobID cron.EntryID) {
 	w.cron.Remove(jobID)
 }
@@ -85,5 +86,6 @@ func doJob(fetcher *fetchers.Fetcher) {
 		err = storageCli.SaveHistoryForFetcher(historyEl)
 		if err != nil {
 			logger.Error(fmt.Sprintf("history for fetcher = fetcherId %v could not be saved", fetcher.Id), err)
-		}	}
+		}
+	}
 }

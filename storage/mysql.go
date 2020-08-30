@@ -1,18 +1,16 @@
 package storage
 
 import (
-	"Kamil-Ambroziak/logger"
 	"database/sql"
 	"fmt"
-	"github.com/go-sql-driver/mysql"
-	"log"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 const (
 	mysqlUsername = "root"
 	mysqlPassword = "password"
 	mysqlHostPort = "localhost:3306"
-	mysqlDB       = "sys"
+	mysqlDB       = "db"
 )
 
 type MySQL struct {
@@ -27,8 +25,6 @@ func NewMySQL() (*MySQL, error) {
 	if err != nil {
 		return nil, err
 	}
-	mysql.SetLogger(logger.GetLogger())
-	log.Println("database successfully configured")
 	if err = Client.Ping(); err != nil {
 		return nil, err
 	}

@@ -24,6 +24,7 @@ const (
 	negative_mysqlError_second        = "negative_mysqlError_second"
 	negative_validationError_interval = "negative_validationError_interval"
 	negative_validationError_url      = "negative_validationError_url"
+	negative_badFormatId              = "negative_badFormatId"
 	positive                          = "positive"
 )
 
@@ -148,6 +149,7 @@ func TestApi_AddFetcher(t *testing.T) {
 		})
 	}
 }
+
 func TestApi_GetAllFetchers(t *testing.T) {
 	type fields struct {
 		Storage fetchers.Storage
@@ -207,6 +209,7 @@ func TestApi_GetAllFetchers(t *testing.T) {
 		})
 	}
 }
+
 func TestApi_UpdateFetcher(t *testing.T) {
 	type fields struct {
 		Storage fetchers.Storage
@@ -247,6 +250,17 @@ func TestApi_UpdateFetcher(t *testing.T) {
 			args: args{
 				fetcher:  mocks.GetFetcherIntervalError(),
 				IdOk:     mocks.FetcherId,
+				wantCode: http.StatusBadRequest,
+			},
+		},
+		{
+			name: negative_badFormatId,
+			fields: fields{
+				Storage: &mocks.MySQLMock{},
+				Worker:  &mocks.WorkerMock{},
+			},
+			args: args{
+				wrongId:  mocks.WrongId,
 				wantCode: http.StatusBadRequest,
 			},
 		},
@@ -351,7 +365,163 @@ func TestApi_UpdateFetcher(t *testing.T) {
 			}
 		})
 	}
-} //
+}
+
+func TestApi_DeleteFetcher(t *testing.T) {
+	type fields struct {
+		Storage fetchers.Storage
+		Worker  fetchers.Worker
+	}
+	type args struct {
+		fetcher        *fetchers.Fetcher
+		fetcherBadBody *mocks.FetcherBadBody
+		wrongId        string
+		IdOk           int64
+		wantCode       int
+		wantId         int64
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+	}{
+		{
+			name: positive,
+			fields: fields{
+				Storage: &mocks.MySQLMock{},
+				Worker:  &mocks.WorkerMock{},
+			},
+			args: args{
+				wantCode: http.StatusOK,
+				IdOk:     mocks.FetcherId,
+				wantId:   mocks.FetcherId,
+			},
+		},
+		{
+			name: negative_badFormatId,
+			fields: fields{
+				Storage: &mocks.MySQLMock{},
+				Worker:  &mocks.WorkerMock{},
+			},
+			args: args{
+				wrongId:  mocks.WrongId,
+				wantCode: http.StatusBadRequest,
+			},
+		},
+		{
+			name: negative_mysqlError,
+			fields: fields{
+				Storage: &mocks.MySQLMock{DeleteFetcherError: true},
+				Worker:  &mocks.WorkerMock{},
+			},
+			args: args{
+				fetcher:  mocks.GetFetcherOk(),
+				IdOk:     mocks.FetcherId,
+				wantCode: http.StatusInternalServerError,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			api := NewAPIServer(tt.fields.Storage, tt.fields.Worker)
+			server := httptest.NewServer(api.Router)
+			var url string
+			if tt.args.IdOk != 0 {
+				url = fmt.Sprintf("%s/api/fetcher/%v", server.URL, tt.args.IdOk)
+			} else {
+				url = fmt.Sprintf("%s/api/fetcher/%s", server.URL, tt.args.wrongId)
+			}
+			req, _ := http.NewRequest(http.MethodDelete, url, nil)
+			resp := execReq(req, t)
+			respBody := &JsonWithID{}
+			_ = json.NewDecoder(resp.Body).Decode(&respBody)
+			if tt.args.wantCode != 0 {
+				checkRespCode(t, tt.args.wantCode, resp.StatusCode)
+			}
+			if tt.args.wantId != 0 {
+				checkIntInBody(t, tt.args.wantId, respBody.Id)
+			}
+		})
+	}
+}
+
+func TestApi_GetHistoryForFetcher(t *testing.T) {
+	type fields struct {
+		Storage fetchers.Storage
+		Worker  fetchers.Worker
+	}
+	type args struct {
+		fetcher        *fetchers.Fetcher
+		fetcherBadBody *mocks.FetcherBadBody
+		wrongId        string
+		IdOk           int64
+		wantCode       int
+		wantCreatedAt  int64
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+	}{
+		{
+			name: positive,
+			fields: fields{
+				Storage: &mocks.MySQLMock{},
+				Worker:  &mocks.WorkerMock{},
+			},
+			args: args{
+				wantCode:      http.StatusOK,
+				IdOk:          mocks.FetcherId,
+				wantCreatedAt: mocks.CreatedAt,
+			},
+		},
+		{
+			name: negative_badFormatId,
+			fields: fields{
+				Storage: &mocks.MySQLMock{},
+				Worker:  &mocks.WorkerMock{},
+			},
+			args: args{
+				wrongId:  mocks.WrongId,
+				wantCode: http.StatusBadRequest,
+			},
+		},
+		{
+			name: negative_mysqlError,
+			fields: fields{
+				Storage: &mocks.MySQLMock{GetHistoryForFetcherError: true},
+				Worker:  &mocks.WorkerMock{},
+			},
+			args: args{
+				fetcher:  mocks.GetFetcherOk(),
+				IdOk:     mocks.FetcherId,
+				wantCode: http.StatusInternalServerError,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			api := NewAPIServer(tt.fields.Storage, tt.fields.Worker)
+			server := httptest.NewServer(api.Router)
+			var url string
+			if tt.args.IdOk != 0 {
+				url = fmt.Sprintf("%s/api/fetcher/%v/history", server.URL, tt.args.IdOk)
+			} else {
+				url = fmt.Sprintf("%s/api/fetcher/%s/history", server.URL, tt.args.wrongId)
+			}
+			req, _ := http.NewRequest(http.MethodGet, url, nil)
+			resp := execReq(req, t)
+			var respBody []HistoryElementResponse
+			_ = json.NewDecoder(resp.Body).Decode(&respBody)
+			if tt.args.wantCode != 0 {
+				checkRespCode(t, tt.args.wantCode, resp.StatusCode)
+			}
+			if tt.args.wantCreatedAt != 0 {
+				checkIntInBody(t, tt.args.wantCreatedAt, respBody[0].CreatedAt)
+			}
+		})
+	}
+}
 
 func execReq(req *http.Request, t *testing.T) *http.Response {
 	res, err := http.DefaultClient.Do(req)
@@ -370,25 +540,3 @@ func checkIntInBody(t *testing.T, expected int64, actual int64) {
 		t.Errorf("Expected int in resp body %d. Got %d\n", expected, actual)
 	}
 }
-
-/*
-type args struct {
-	fetcher *fetchers.Fetcher
-	fetcherBadBody FetcherBadBody
-	wrongId string
-	IdOk int64
-	wantCode int
-	wantId int64
-}*/
-//url := fmt.Sprintf("%s/api/fetcher/%v", server.URL, tt.args.IdOk)
-/*{
-name: "negative_invalidId",
-fields: fields{
-Storage: &mocks.MySQLMock{},
-Worker:  &mocks.WorkerMock{},
-},
-args: args{
-fetcher:  mocks.GetFetcherOk(),
-wantCode: http.StatusInternalServerError,
-},
-},*/
