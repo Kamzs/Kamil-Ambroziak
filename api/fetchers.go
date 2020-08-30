@@ -68,6 +68,7 @@ func (api *Api) UpdateFetcher(c *gin.Context) {
 	oldFetcher, restErr := api.Storage.GetFetcher(fetcherId)
 	if restErr != nil {
 		c.JSON(restErr.Status(), restErr)
+		return
 	}
 
 	oldJobId := oldFetcher.JobID

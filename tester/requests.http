@@ -35,7 +35,7 @@ Content-Type: application/json
 }
 
 ###
-PATCH http://localhost:8080/api/fetcher/11
+PATCH http://localhost:8080/api/fetcher/111
 Content-Type: application/json
 
 {
