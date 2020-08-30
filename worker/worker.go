@@ -49,7 +49,7 @@ func doJob(fetcher *fetchers.Fetcher) {
 	defer cancel()
 	req, err := http.NewRequest("GET", fetcher.Url, nil)
 	if err != nil {
-		logger.Error(fmt.Sprintf("error when trying prepare request for job %v",fetcher.JobID), err)
+		logger.Error(fmt.Sprintf("error when trying prepare request for job %v", fetcher.JobID), err)
 		return
 	}
 	trace := &httptrace.ClientTrace{}
@@ -67,9 +67,11 @@ func doJob(fetcher *fetchers.Fetcher) {
 			historyEl.Response = ""
 			historyEl.Duration = 5
 			err = storageCli.SaveHistoryForFetcher(historyEl)
-			logger.Error(fmt.Sprintf("history for fetcher %v could not be saved",fetcher.Id), err)
+			if err != nil {
+				logger.Error(fmt.Sprintf("history for fetcher = fetcherId %v could not be saved", fetcher.Id), err)
+			}
 		}
-		logger.Error(fmt.Sprintf("page %s could not be raeched",fetcher.Url), err)
+		logger.Error(fmt.Sprintf("page %s could not be raeched", fetcher.Url), err)
 	} else {
 		if res.StatusCode == http.StatusOK {
 			bodyBytes, err := ioutil.ReadAll(res.Body)
@@ -81,6 +83,7 @@ func doJob(fetcher *fetchers.Fetcher) {
 			historyEl.Duration = totalResponseTime.Seconds()
 		}
 		err = storageCli.SaveHistoryForFetcher(historyEl)
-		logger.Error(fmt.Sprintf("history for fetcher %v could not be saved",fetcher.Id), err)
-	}
+		if err != nil {
+			logger.Error(fmt.Sprintf("history for fetcher = fetcherId %v could not be saved", fetcher.Id), err)
+		}	}
 }

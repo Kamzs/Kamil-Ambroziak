@@ -16,8 +16,7 @@ func (api *Api) AddFetcher(c *gin.Context) {
 		return
 	}
 
-	if err := fetcher.Validate(); err != nil {
-		restErr := utils.NewBadRequestError("validation failed")
+	if restErr := fetcher.Validate(false); restErr != nil {
 		c.JSON(restErr.Status(), restErr)
 		return
 	}
@@ -74,22 +73,30 @@ func (api *Api) UpdateFetcher(c *gin.Context) {
 
 	oldJobId := oldFetcher.JobID
 
+	if restErr := newFetcher.Validate(true); restErr != nil {
+		c.JSON(restErr.Status(), restErr)
+		return
+	}
 	fillMissingFields(oldFetcher,&newFetcher)
 
-	newJobId, err := api.Worker.RegisterFetcher(&newFetcher)
-	if err != nil {
+	newJobId, restErr := api.Worker.RegisterFetcher(&newFetcher)
+	if restErr != nil {
 		c.JSON(restErr.Status(), restErr)
 	}
 	api.Worker.DeregisterFetcher(cron.EntryID(oldJobId))
 
 	newFetcher.Id = fetcherId
 	newFetcher.JobID = int64(newJobId)
-	err = api.Storage.UpdateFetcher(&newFetcher)
-	if err != nil {
-		c.JSON(err.Status(), err)
+	restErr = api.Storage.UpdateFetcher(&newFetcher)
+	if restErr != nil {
+		c.JSON(restErr.Status(), restErr)
 		return
 	}
-	c.JSON(http.StatusOK, JsonWithID{Id: newFetcher.Id})
+	c.JSON(http.StatusOK, fetchers.FetcherUpdateResponse{
+		Id: newFetcher.Id,
+		Url: newFetcher.Url,
+		Interval: newFetcher.Interval,
+	})
 }
 
 func (api *Api) DeleteFetcher(c *gin.Context) {

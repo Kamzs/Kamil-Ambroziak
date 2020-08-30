@@ -4,7 +4,7 @@ import (
 	"Kamil-Ambroziak/api"
 	"Kamil-Ambroziak/logger"
 	"Kamil-Ambroziak/storage"
-	worker2 "Kamil-Ambroziak/worker"
+	"Kamil-Ambroziak/worker"
 	"github.com/pkg/errors"
 )
 
@@ -18,11 +18,6 @@ func main() {
 		log.Print(err)
 		return
 	}
-
-	worker := worker2.NewWorker()
-
+	worker := worker.NewWorker()
 	api.NewAPIServer(msql,worker)
-
-
-
 }

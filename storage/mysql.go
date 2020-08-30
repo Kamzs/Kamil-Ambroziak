@@ -1,8 +1,11 @@
 package storage
 
 import (
+	"Kamil-Ambroziak/logger"
 	"database/sql"
 	"fmt"
+	"github.com/go-sql-driver/mysql"
+	"log"
 )
 
 const (
@@ -14,7 +17,6 @@ const (
 
 type MySQL struct {
 	client *sql.DB
-	tables []string
 }
 
 func NewMySQL() (*MySQL, error) {
@@ -25,11 +27,12 @@ func NewMySQL() (*MySQL, error) {
 	if err != nil {
 		return nil, err
 	}
+	mysql.SetLogger(logger.GetLogger())
+	log.Println("database successfully configured")
 	if err = Client.Ping(); err != nil {
 		return nil, err
 	}
 	return &MySQL{
 		client: Client,
-		tables: []string{"fetchers","history"},
 	}, err
 }
