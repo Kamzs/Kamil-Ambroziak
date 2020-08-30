@@ -5,6 +5,7 @@ import (
 	"Kamil-Ambroziak/logger"
 	"Kamil-Ambroziak/utils"
 	"errors"
+	"fmt"
 )
 
 func (db *MySQL) SaveFetcher(fetcher *fetchers.Fetcher) utils.RestErr {
@@ -56,7 +57,7 @@ func (db *MySQL) DeleteFetcher(fetcherId int64) utils.RestErr {
 
 	if _, err = stmt.Exec(fetcherId); err != nil {
 		logger.Error("error when trying to delete fetcher", err)
-		return utils.NewInternalServerError("error when tying to save fetcher", errors.New("database error"))
+		return utils.NewInternalServerError("error when tying to delete fetcher", errors.New("database error"))
 	}
 	return nil
 }
@@ -79,9 +80,9 @@ func (db *MySQL) FindAllFetchers() ([]fetchers.Fetcher, utils.RestErr) {
 	results := make([]fetchers.Fetcher, 0)
 	for rows.Next() {
 		var fetcher fetchers.Fetcher
-		if err := rows.Scan(&fetcher.Id, &fetcher.Url, &fetcher.Interval); err != nil {
+		if err := rows.Scan(&fetcher.Id, &fetcher.Url, &fetcher.Interval, &fetcher.JobID); err != nil {
 			logger.Error("error when scan fetcher row into fetcher struct", err)
-			return nil, utils.NewInternalServerError("error when tying to gett fetcher", errors.New("database error"))
+			return nil, utils.NewInternalServerError("error when tying to get fetcher", errors.New("database error"))
 		}
 		results = append(results, fetcher)
 	}
@@ -103,7 +104,10 @@ func (db *MySQL) GetFetcher(fetcherId int64) (*fetchers.Fetcher, utils.RestErr) 
 	fetcher := fetchers.Fetcher{}
 	if getErr := result.Scan(&fetcher.Url, &fetcher.Interval, &fetcher.JobID); getErr != nil {
 		logger.Error("error when trying to get fetcher by id", getErr)
-		return nil, utils.NewInternalServerError("error when tying to get fetcher", errors.New("database error"))
+		if fmt.Sprint(getErr) == ErrorNoRows {
+			return nil, utils.NewNotFoundError(ErrorNoRows)
+		}
+		return nil, utils.NewInternalServerError("error when tying to get fetcher", getErr)
 	}
 	return &fetcher, nil
 }

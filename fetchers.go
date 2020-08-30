@@ -1,26 +1,25 @@
 package fetchers
 
 import (
+	"Kamil-Ambroziak/logger"
 	"Kamil-Ambroziak/utils"
 	"github.com/robfig/cron/v3"
-	"strings"
+	"net/url"
 )
-
-//todo change to interface in order to allow mocks creation
 
 type Storage interface {
 	SaveFetcher(fetcher *Fetcher) utils.RestErr
 	UpdateFetcher(fetcher *Fetcher) utils.RestErr
 	DeleteFetcher(fetcherId int64) utils.RestErr
 	FindAllFetchers() ([]Fetcher, utils.RestErr)
-	GetFetcher(fetcherId int64 ) (*Fetcher, utils.RestErr)
-	GetHistoryForFetcher(fetcherId int64 ) (HistoryElementsResponse, utils.RestErr)
+	GetFetcher(fetcherId int64) (*Fetcher, utils.RestErr)
+	SaveHistoryForFetcher(historyEl *HistoryElement) utils.RestErr
+	GetHistoryForFetcher(fetcherId int64) ([]HistoryElement, utils.RestErr)
 }
 
 type Worker interface {
 	RegisterFetcher(fetcher *Fetcher) (cron.EntryID, utils.RestErr)
 	DeregisterFetcher(jobId cron.EntryID)
-	UpdateFetcher(fetcher *Fetcher) utils.RestErr
 }
 
 type Fetcher struct {
@@ -31,28 +30,34 @@ type Fetcher struct {
 }
 
 type HistoryElement struct {
-	Id        int64  `json:"id"`
-	Response  string `json:"url"`
-	Duration  int64  `json:"duration"`
-	CreatedAt int64  `json:"created_at"`
+	Id        int64   `json:"id"`
+	Response  string  `json:"response"`
+	Duration  float64 `json:"duration"`
+	CreatedAt int64   `json:"created_at"`
 }
-type HistoryElementResponse struct {
-	Response  string `json:"url"`
-	Duration  int64  `json:"duration"`
-	CreatedAt int64  `json:"created_at"`
-}
-type HistoryElementsResponse []HistoryElementResponse
 
-func (fetcher *Fetcher) Validate() utils.RestErr {
-
-	fetcher.Url = strings.TrimSpace(fetcher.Url)
-	//todo add more checkings
-	if fetcher.Url == "" {
-		return utils.NewBadRequestError("invalid url")
+func (fetcher *Fetcher) Validate(update bool) utils.RestErr {
+	checkInterval := true
+	checkURL := true
+	if update == true {
+		if fetcher.Interval == 0 {
+			checkInterval = false
+		}
+		if fetcher.Url == "" {
+			checkURL = false
+		}
 	}
-	//todo add more checkings
-	if fetcher.Interval == 0 {
-		return utils.NewBadRequestError("invalid interval")
+	if checkInterval {
+		if fetcher.Interval <= 0 {
+			return utils.NewBadRequestError("invalid interval")
+		}
+	}
+	if checkURL {
+		_, err := url.ParseRequestURI(fetcher.Url)
+		if err != nil {
+			logger.Error("provided wrong url", err)
+			return utils.NewBadRequestError("provided wrong url")
+		}
 	}
 	return nil
 }

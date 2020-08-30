@@ -25,7 +25,7 @@ func (db *MySQL) SaveHistoryForFetcher(historyEl *fetchers.HistoryElement) utils
 }
 
 
-func (db *MySQL) GetHistoryForFetcher(fetcherId int64 ) (fetchers.HistoryElementsResponse, utils.RestErr) {
+func (db *MySQL) GetHistoryForFetcher(fetcherId int64 ) ([]fetchers.HistoryElement, utils.RestErr) {
 	stmt, err := db.client.Prepare(queryGetHistory)
 	if err != nil {
 		logger.Error("error when trying to prepare get fetcher statement", err)
@@ -41,10 +41,10 @@ func (db *MySQL) GetHistoryForFetcher(fetcherId int64 ) (fetchers.HistoryElement
 
 	defer rows.Close()
 
-	results := fetchers.HistoryElementsResponse{}
+	var results []fetchers.HistoryElement
 	for rows.Next() {
-		var historyEl fetchers.HistoryElementResponse
-		if err := rows.Scan(&historyEl.Response, &historyEl.Duration, &historyEl.CreatedAt); err != nil {
+		var historyEl fetchers.HistoryElement
+		if err := rows.Scan(&historyEl.Id, &historyEl.Response, &historyEl.Duration, &historyEl.CreatedAt); err != nil {
 			logger.Error("error when scan historyEl row into historyElementResponse struct", err)
 			return nil, utils.NewInternalServerError("error when tying to get history for fetcher", errors.New("database error"))
 		}
