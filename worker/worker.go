@@ -64,15 +64,12 @@ func doJob(fetcher *fetchers.Fetcher) {
 	res, err := http.DefaultTransport.RoundTrip(req.WithContext(ctxTimer))
 	totalResponseTime := time.Since(start)
 	if err != nil {
-		if fmt.Sprintf("%T", err) == "context.deadlineExceededError" {
-			historyEl.Response = ""
-			historyEl.Duration = 5
-			err = storageCli.SaveHistoryForFetcher(historyEl)
-			if err != nil {
-				logger.Error(fmt.Sprintf("history for fetcher = fetcherId %v could not be saved", fetcher.Id), err)
-			}
+		historyEl.Response = ""
+		historyEl.Duration = 5
+		err = storageCli.SaveHistoryForFetcher(historyEl)
+		if err != nil {
+			logger.Error(fmt.Sprintf("history for fetcher = fetcherId %v could not be saved", fetcher.Id), err)
 		}
-		logger.Error(fmt.Sprintf("page %s could not be reached", fetcher.Url), err)
 	} else {
 		if res.StatusCode == http.StatusOK {
 			bodyBytes, err := ioutil.ReadAll(res.Body)
