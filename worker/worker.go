@@ -1,18 +1,19 @@
 package worker
 
 import (
-	fetchers "Kamil-Ambroziak"
-	"Kamil-Ambroziak/logger"
-	"Kamil-Ambroziak/storage"
-	"Kamil-Ambroziak/utils"
 	"context"
 	"fmt"
-	"github.com/robfig/cron/v3"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httptrace"
 	"time"
+
+	fetchers "github.com/Kamzs/Kamil-Ambroziak"
+	"github.com/Kamzs/Kamil-Ambroziak/logger"
+	"github.com/Kamzs/Kamil-Ambroziak/storage"
+	"github.com/Kamzs/Kamil-Ambroziak/utils"
+	"github.com/robfig/cron/v3"
 )
 
 var storageCli fetchers.Storage

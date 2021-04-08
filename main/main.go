@@ -1,12 +1,11 @@
 package main
 
 import (
-	"Kamil-Ambroziak/api"
-	"Kamil-Ambroziak/logger"
-	"Kamil-Ambroziak/storage"
-	"Kamil-Ambroziak/worker"
+	"github.com/Kamzs/Kamil-Ambroziak/api"
+	"github.com/Kamzs/Kamil-Ambroziak/logger"
+	"github.com/Kamzs/Kamil-Ambroziak/storage"
+	"github.com/Kamzs/Kamil-Ambroziak/worker"
 )
-
 
 func main() {
 

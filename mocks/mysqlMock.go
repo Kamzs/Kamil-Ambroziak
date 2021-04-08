@@ -1,66 +1,68 @@
 package mocks
 
 import (
-	fetchers "Kamil-Ambroziak"
-	"Kamil-Ambroziak/utils"
 	"errors"
+
+	fetchers "github.com/Kamzs/Kamil-Ambroziak"
+	"github.com/Kamzs/Kamil-Ambroziak/utils"
 )
 
 const (
-	FetcherId       = 1
-	WrongId       = "asd"
-	CreatedAt       = 1598806860
-	exampleErrorMsg = "error"
-	okUrl = "https://httpbin.org/range/10"
-	badUrl = "ttpbin.org/range/10"
+	FetcherId         = 1
+	WrongId           = "asd"
+	CreatedAt         = 1598806860
+	exampleErrorMsg   = "error"
+	okUrl             = "https://httpbin.org/range/10"
+	badUrl            = "ttpbin.org/range/10"
 	entityTooLargeUrl = "https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10https://httpbin.org/range/10"
-	okInterval = 10
-	badInterval = -1
+	okInterval        = 10
+	badInterval       = -1
 )
 
 type MySQLMock struct {
-	SaveFetcherError bool
-	UpdateFetcherError bool
-	DeleteFetcherError bool
-	FindAllFetchersError bool
-	GetFetcherError bool
+	SaveFetcherError           bool
+	UpdateFetcherError         bool
+	DeleteFetcherError         bool
+	FindAllFetchersError       bool
+	GetFetcherError            bool
 	SaveHistoryForFetcherError bool
-	GetHistoryForFetcherError bool
+	GetHistoryForFetcherError  bool
 
-	Fetcher                 *fetchers.Fetcher
+	Fetcher *fetchers.Fetcher
 
-	ErrAfterSuccess          int
-	counter                  int
+	ErrAfterSuccess int
+	counter         int
 }
 type FetcherBadBody struct {
 	Url bool
 }
-func GetFetcherBadBody() *FetcherBadBody{
+
+func GetFetcherBadBody() *FetcherBadBody {
 	return &FetcherBadBody{
 		Url: true,
 	}
 }
-func GetFetcherEntityToBig() *fetchers.Fetcher{
+func GetFetcherEntityToBig() *fetchers.Fetcher {
 	return &fetchers.Fetcher{
-		Url: entityTooLargeUrl,
+		Url:      entityTooLargeUrl,
 		Interval: okInterval,
 	}
 }
-func GetFetcherOk() *fetchers.Fetcher{
+func GetFetcherOk() *fetchers.Fetcher {
 	return &fetchers.Fetcher{
-		Url: okUrl,
+		Url:      okUrl,
 		Interval: okInterval,
 	}
 }
-func GetFetcherIntervalError() *fetchers.Fetcher{
+func GetFetcherIntervalError() *fetchers.Fetcher {
 	return &fetchers.Fetcher{
-		Url: okUrl,
+		Url:      okUrl,
 		Interval: badInterval,
 	}
 }
-func GetFetcherUrlError() *fetchers.Fetcher{
+func GetFetcherUrlError() *fetchers.Fetcher {
 	return &fetchers.Fetcher{
-		Url: badUrl,
+		Url:      badUrl,
 		Interval: okInterval,
 	}
 }
@@ -92,13 +94,13 @@ func (db *MySQLMock) DeleteFetcher(fetcherId int64) utils.RestErr {
 }
 func (db *MySQLMock) FindAllFetchers() ([]fetchers.Fetcher, utils.RestErr) {
 	if db.FindAllFetchersError {
-		return nil,utils.NewInternalServerError(exampleErrorMsg, errors.New(exampleErrorMsg))
+		return nil, utils.NewInternalServerError(exampleErrorMsg, errors.New(exampleErrorMsg))
 	}
 	return []fetchers.Fetcher{{Id: FetcherId}}, nil
 }
 func (db *MySQLMock) GetFetcher(fetcherId int64) (*fetchers.Fetcher, utils.RestErr) {
 	if db.GetFetcherError {
-		return nil,utils.NewInternalServerError(exampleErrorMsg, errors.New(exampleErrorMsg))
+		return nil, utils.NewInternalServerError(exampleErrorMsg, errors.New(exampleErrorMsg))
 	}
 	return &fetchers.Fetcher{}, nil
 }
@@ -108,9 +110,9 @@ func (db *MySQLMock) SaveHistoryForFetcher(historyEl *fetchers.HistoryElement) u
 	}
 	return nil
 }
-func (db *MySQLMock) GetHistoryForFetcher(fetcherId int64 ) ([]fetchers.HistoryElement, utils.RestErr) {
+func (db *MySQLMock) GetHistoryForFetcher(fetcherId int64) ([]fetchers.HistoryElement, utils.RestErr) {
 	if db.GetHistoryForFetcherError {
-		return nil,utils.NewInternalServerError(exampleErrorMsg, errors.New(exampleErrorMsg))
+		return nil, utils.NewInternalServerError(exampleErrorMsg, errors.New(exampleErrorMsg))
 	}
-	return []fetchers.HistoryElement{{CreatedAt: CreatedAt}},nil
+	return []fetchers.HistoryElement{{CreatedAt: CreatedAt}}, nil
 }

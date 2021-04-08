@@ -1,11 +1,12 @@
 package api
 
 import (
-	fetchers "Kamil-Ambroziak"
-	"Kamil-Ambroziak/utils"
+	"net/http"
+
+	fetchers "github.com/Kamzs/Kamil-Ambroziak"
+	"github.com/Kamzs/Kamil-Ambroziak/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/robfig/cron/v3"
-	"net/http"
 )
 
 func (api *Api) AddFetcher(c *gin.Context) {

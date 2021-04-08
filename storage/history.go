@@ -1,12 +1,13 @@
 package storage
 
 import (
-	fetchers "Kamil-Ambroziak"
-	"Kamil-Ambroziak/logger"
-	"Kamil-Ambroziak/utils"
 	"errors"
 
+	fetchers "github.com/Kamzs/Kamil-Ambroziak"
+	"github.com/Kamzs/Kamil-Ambroziak/logger"
+	"github.com/Kamzs/Kamil-Ambroziak/utils"
 )
+
 func (db *MySQL) SaveHistoryForFetcher(historyEl *fetchers.HistoryElement) utils.RestErr {
 
 	stmt, err := db.client.Prepare(queryInsertHistoryElement)
@@ -16,7 +17,7 @@ func (db *MySQL) SaveHistoryForFetcher(historyEl *fetchers.HistoryElement) utils
 	}
 	defer stmt.Close()
 
-	_, saveErr := stmt.Exec(historyEl.Id,historyEl.Response,historyEl.Duration, historyEl.CreatedAt)
+	_, saveErr := stmt.Exec(historyEl.Id, historyEl.Response, historyEl.Duration, historyEl.CreatedAt)
 	if saveErr != nil {
 		logger.Error("error when trying to save fetcher", saveErr)
 		return utils.NewInternalServerError("error when tying to save fetcher", errors.New("database error"))
@@ -24,8 +25,7 @@ func (db *MySQL) SaveHistoryForFetcher(historyEl *fetchers.HistoryElement) utils
 	return nil
 }
 
-
-func (db *MySQL) GetHistoryForFetcher(fetcherId int64 ) ([]fetchers.HistoryElement, utils.RestErr) {
+func (db *MySQL) GetHistoryForFetcher(fetcherId int64) ([]fetchers.HistoryElement, utils.RestErr) {
 	stmt, err := db.client.Prepare(queryGetHistory)
 	if err != nil {
 		logger.Error("error when trying to prepare get fetcher statement", err)
@@ -53,5 +53,5 @@ func (db *MySQL) GetHistoryForFetcher(fetcherId int64 ) ([]fetchers.HistoryEleme
 	if len(results) == 0 {
 		return nil, utils.NewNotFoundError("no history found")
 	}
-	return results,nil
+	return results, nil
 }

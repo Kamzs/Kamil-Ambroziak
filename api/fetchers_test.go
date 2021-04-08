@@ -1,16 +1,16 @@
 package api
 
 import (
-	fetchers "Kamil-Ambroziak"
-	"Kamil-Ambroziak/mocks"
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-)
 
+	fetchers "github.com/Kamzs/Kamil-Ambroziak"
+	"github.com/Kamzs/Kamil-Ambroziak/mocks"
+)
 
 //test names
 const (

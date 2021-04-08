@@ -1,23 +1,24 @@
 package api
 
 import (
-	fetchers "Kamil-Ambroziak"
-	"Kamil-Ambroziak/utils"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	fetchers "github.com/Kamzs/Kamil-Ambroziak"
+	"github.com/Kamzs/Kamil-Ambroziak/utils"
+	"github.com/gin-gonic/gin"
 )
 
-type Api struct{
+type Api struct {
 	Storage fetchers.Storage
-	Worker fetchers.Worker
-	Router *gin.Engine
+	Worker  fetchers.Worker
+	Router  *gin.Engine
 }
 
 func NewAPIServer(mySqlClient fetchers.Storage, worker fetchers.Worker) *Api {
 	api := &Api{
 		Storage: mySqlClient,
-		Worker: worker,
-		Router: gin.Default(),
+		Worker:  worker,
+		Router:  gin.Default(),
 	}
 	api.Router.Use(checkSize)
 	api.Router.POST("/api/fetcher", api.AddFetcher)
@@ -28,10 +29,10 @@ func NewAPIServer(mySqlClient fetchers.Storage, worker fetchers.Worker) *Api {
 	return api
 }
 
-func checkSize(c *gin.Context){
+func checkSize(c *gin.Context) {
 	size := c.Request.ContentLength
 	if size > 1024 {
-		c.AbortWithStatusJSON(http.StatusRequestEntityTooLarge,utils.NewRestError("entity too large",http.StatusRequestEntityTooLarge,"payload can be max 1024 bytes",nil))
+		c.AbortWithStatusJSON(http.StatusRequestEntityTooLarge, utils.NewRestError("entity too large", http.StatusRequestEntityTooLarge, "payload can be max 1024 bytes", nil))
 		return
 	}
 	c.Next()

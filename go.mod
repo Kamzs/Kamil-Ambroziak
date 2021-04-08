@@ -1,14 +1,10 @@
-module Kamil-Ambroziak
+module github.com/Kamzs/Kamil-Ambroziak
 
-go 1.15
+go 1.16
 
 require (
-	github.com/federicoleon/bookstore_utils-go v0.0.0-20200406081703-a9b52b6e34e6
-	github.com/gin-gonic/gin v1.6.3
-	github.com/go-sql-driver/mysql v1.5.0
-	github.com/pkg/errors v0.8.1
+	github.com/gin-gonic/gin v1.7.0
+	github.com/go-sql-driver/mysql v1.6.0
 	github.com/robfig/cron/v3 v3.0.1
-	github.com/tcnksm/go-httpstat v0.2.0
-	go.uber.org/zap v1.14.1
-
+	go.uber.org/zap v1.16.0
 )

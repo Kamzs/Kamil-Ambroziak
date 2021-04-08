@@ -1,11 +1,12 @@
 package storage
 
 import (
-	fetchers "Kamil-Ambroziak"
-	"Kamil-Ambroziak/logger"
-	"Kamil-Ambroziak/utils"
 	"errors"
 	"fmt"
+
+	fetchers "github.com/Kamzs/Kamil-Ambroziak"
+	"github.com/Kamzs/Kamil-Ambroziak/logger"
+	"github.com/Kamzs/Kamil-Ambroziak/utils"
 )
 
 func (db *MySQL) SaveFetcher(fetcher *fetchers.Fetcher) utils.RestErr {

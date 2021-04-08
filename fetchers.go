@@ -1,10 +1,11 @@
 package fetchers
 
 import (
-	"Kamil-Ambroziak/logger"
-	"Kamil-Ambroziak/utils"
-	"github.com/robfig/cron/v3"
 	"net/url"
+
+	"github.com/Kamzs/Kamil-Ambroziak/logger"
+	"github.com/Kamzs/Kamil-Ambroziak/utils"
+	"github.com/robfig/cron/v3"
 )
 
 type Storage interface {
