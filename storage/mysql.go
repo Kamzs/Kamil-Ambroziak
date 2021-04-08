@@ -3,6 +3,10 @@ package storage
 import (
 	"database/sql"
 	"fmt"
+	"time"
+
+	"github.com/Kamzs/Kamil-Ambroziak/logger"
+
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -25,10 +29,15 @@ func NewMySQL() (*MySQL, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err = Client.Ping(); err != nil {
-		return nil, err
+	for {
+		if err = Client.Ping(); err != nil {
+			logger.Info("mysql not reachable")
+			time.Sleep(time.Second * 5)
+		} else {
+			return &MySQL{
+				client: Client,
+			}, err
+		}
 	}
-	return &MySQL{
-		client: Client,
-	}, err
+
 }

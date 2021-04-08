@@ -1,5 +1,5 @@
 FROM golang:1.15.7-buster
-RUN go get -u github.com/beego/bee
+RUN go get -u github.com/Kamzs/Kamil-Ambroziak
 # ENV GO111MODULE=on
 # ENV GOFLAGS=-mod=vendor
 # ENV APP_USER app
@@ -15,7 +15,6 @@ RUN go get -u github.com/beego/bee
 
 # FROM ubuntu:latest
 WORKDIR /app
-RUN cd /bin && pwd
-ADD /main/main /app
+RUN cd /go/src/github.com/Kamzs/Kamil-Ambroziak/main && go build -o app && mv app /app
 EXPOSE 8080
-CMD ["sh", "-c", "tail -f /dev/null"]
+CMD /app/app
