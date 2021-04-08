@@ -13,7 +13,7 @@ import (
 const (
 	mysqlUsername = "root"
 	mysqlPassword = "password"
-	mysqlHostPort = "localhost:3306"
+	mysqlHostPort = "db:3306"
 	mysqlDB       = "db"
 )
 
