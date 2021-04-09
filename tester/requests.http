@@ -14,12 +14,14 @@ Content-Type: application/json
   "url": "https://httpbin.org/delay/10",
   "interval":77
 }
+
 ###
 GET http://localhost:8080/api/fetcher/7/history
 Content-Type: application/json
 
 {
 }
+
 ###
 GET http://localhost:8080/api/fetcher
 Content-Type: application/json

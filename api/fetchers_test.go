@@ -3,6 +3,7 @@ package api
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -10,6 +11,8 @@ import (
 
 	fetchers "github.com/Kamzs/Kamil-Ambroziak"
 	"github.com/Kamzs/Kamil-Ambroziak/mocks"
+	"github.com/Kamzs/Kamil-Ambroziak/utils"
+	"github.com/golang/mock/gomock"
 )
 
 //test names
@@ -27,17 +30,17 @@ const (
 
 func TestApi_AddFetcher(t *testing.T) {
 	type fields struct {
-		Storage fetchers.Storage
-		Worker  fetchers.Worker
+		StorageResp utils.RestErr
+		Worker      fetchers.Worker
 	}
 	type args struct {
 		fetcher        *fetchers.Fetcher
 		fetcherBadBody *mocks.FetcherBadBody
-		wrongId        string
 		IdOk           int64
+		callStorage    bool
 		wantCode       int
-		wantId         int64
 	}
+
 	tests := []struct {
 		name   string
 		fields fields
@@ -46,20 +49,20 @@ func TestApi_AddFetcher(t *testing.T) {
 		{
 			name: positive,
 			fields: fields{
-				Storage: &mocks.MySQLMock{},
-				Worker:  &mocks.WorkerMock{},
+				StorageResp: nil,
+				Worker:      &mocks.WorkerMock{},
 			},
 			args: args{
-				fetcher:  mocks.GetFetcherOk(),
-				wantCode: http.StatusCreated,
-				wantId:   mocks.FetcherId,
+				fetcher:     mocks.GetFetcherOk(),
+				wantCode:    http.StatusCreated,
+				callStorage: true,
 			},
 		},
 		{
 			name: negative_validationError_interval,
 			fields: fields{
-				Storage: &mocks.MySQLMock{},
-				Worker:  &mocks.WorkerMock{},
+				StorageResp: nil,
+				Worker:      &mocks.WorkerMock{},
 			},
 			args: args{
 				fetcher:  mocks.GetFetcherIntervalError(),
@@ -69,8 +72,8 @@ func TestApi_AddFetcher(t *testing.T) {
 		{
 			name: negative_validationError_url,
 			fields: fields{
-				Storage: &mocks.MySQLMock{},
-				Worker:  &mocks.WorkerMock{},
+				StorageResp: nil,
+				Worker:      &mocks.WorkerMock{},
 			},
 			args: args{
 				fetcher:  mocks.GetFetcherUrlError(),
@@ -80,19 +83,20 @@ func TestApi_AddFetcher(t *testing.T) {
 		{
 			name: negative_mysqlError,
 			fields: fields{
-				Storage: &mocks.MySQLMock{SaveFetcherError: true},
-				Worker:  &mocks.WorkerMock{},
+				StorageResp: utils.NewInternalServerError("msg", errors.New("msg")),
+				Worker:      &mocks.WorkerMock{},
 			},
 			args: args{
-				fetcher:  mocks.GetFetcherOk(),
-				wantCode: http.StatusInternalServerError,
+				fetcher:     mocks.GetFetcherOk(),
+				wantCode:    http.StatusInternalServerError,
+				callStorage: true,
 			},
 		},
 		{
 			name: negative_workerError,
 			fields: fields{
-				Storage: &mocks.MySQLMock{},
-				Worker:  &mocks.WorkerMock{RegisterFetcherError: true},
+				StorageResp: nil,
+				Worker:      &mocks.WorkerMock{RegisterFetcherError: true},
 			},
 			args: args{
 				fetcher:  mocks.GetFetcherOk(),
@@ -102,8 +106,8 @@ func TestApi_AddFetcher(t *testing.T) {
 		{
 			name: negative_badBody,
 			fields: fields{
-				Storage: &mocks.MySQLMock{},
-				Worker:  &mocks.WorkerMock{},
+				StorageResp: nil,
+				Worker:      &mocks.WorkerMock{},
 			},
 			args: args{
 				fetcherBadBody: mocks.GetFetcherBadBody(),
@@ -113,8 +117,8 @@ func TestApi_AddFetcher(t *testing.T) {
 		{
 			name: negative_entityTooLarge,
 			fields: fields{
-				Storage: &mocks.MySQLMock{},
-				Worker:  &mocks.WorkerMock{},
+				StorageResp: nil,
+				Worker:      &mocks.WorkerMock{},
 			},
 			args: args{
 				fetcher:  mocks.GetFetcherEntityToBig(),
@@ -122,11 +126,19 @@ func TestApi_AddFetcher(t *testing.T) {
 			},
 		},
 	}
+
 	for _, tt := range tests {
+		ctrl := gomock.NewController(t)
+
+		m := mocks.NewMockStorage(ctrl)
+
+		api := NewAPIServer(m, tt.fields.Worker)
+		server := httptest.NewServer(api.Router)
+		url := fmt.Sprintf("%s/api/fetcher", server.URL)
 		t.Run(tt.name, func(t *testing.T) {
-			api := NewAPIServer(tt.fields.Storage, tt.fields.Worker)
-			server := httptest.NewServer(api.Router)
-			url := fmt.Sprintf("%s/api/fetcher", server.URL)
+			if tt.args.callStorage {
+				m.EXPECT().SaveFetcher(tt.args.fetcher).Return(tt.fields.StorageResp)
+			}
 			var serialized []byte
 			if tt.args.fetcherBadBody != nil {
 				serialized, _ = json.Marshal(tt.args.fetcherBadBody)
@@ -138,10 +150,7 @@ func TestApi_AddFetcher(t *testing.T) {
 			respBody := &JsonWithID{}
 			_ = json.NewDecoder(resp.Body).Decode(&respBody)
 			if tt.args.wantCode != 0 {
-				checkRespCode(t, tt.args.wantCode, resp.StatusCode)
-			}
-			if tt.args.wantId != 0 {
-				checkIntInBody(t, tt.args.wantId, respBody.Id)
+				checkRespCode(t, tt.args.wantCode, resp.StatusCode, tt.name)
 			}
 		})
 	}
@@ -198,7 +207,7 @@ func TestApi_GetAllFetchers(t *testing.T) {
 			var respBody []GetAllFetchersResponse
 			_ = json.NewDecoder(resp.Body).Decode(&respBody)
 			if tt.args.wantCode != 0 {
-				checkRespCode(t, tt.args.wantCode, resp.StatusCode)
+				checkRespCode(t, tt.args.wantCode, resp.StatusCode, tt.name)
 			}
 			if tt.args.wantId != 0 {
 				checkIntInBody(t, tt.args.wantId, respBody[0].Id)
@@ -355,7 +364,7 @@ func TestApi_UpdateFetcher(t *testing.T) {
 			respBody := &FetcherUpdateResponse{}
 			_ = json.NewDecoder(resp.Body).Decode(&respBody)
 			if tt.args.wantCode != 0 {
-				checkRespCode(t, tt.args.wantCode, resp.StatusCode)
+				checkRespCode(t, tt.args.wantCode, resp.StatusCode, tt.name)
 			}
 			if tt.args.wantId != 0 {
 				checkIntInBody(t, tt.args.wantId, respBody.Id)
@@ -433,7 +442,7 @@ func TestApi_DeleteFetcher(t *testing.T) {
 			respBody := &JsonWithID{}
 			_ = json.NewDecoder(resp.Body).Decode(&respBody)
 			if tt.args.wantCode != 0 {
-				checkRespCode(t, tt.args.wantCode, resp.StatusCode)
+				checkRespCode(t, tt.args.wantCode, resp.StatusCode, tt.name)
 			}
 			if tt.args.wantId != 0 {
 				checkIntInBody(t, tt.args.wantId, respBody.Id)
@@ -511,7 +520,7 @@ func TestApi_GetHistoryForFetcher(t *testing.T) {
 			var respBody []HistoryElementResponse
 			_ = json.NewDecoder(resp.Body).Decode(&respBody)
 			if tt.args.wantCode != 0 {
-				checkRespCode(t, tt.args.wantCode, resp.StatusCode)
+				checkRespCode(t, tt.args.wantCode, resp.StatusCode, tt.name)
 			}
 			if tt.args.wantCreatedAt != 0 {
 				checkIntInBody(t, tt.args.wantCreatedAt, respBody[0].CreatedAt)
@@ -527,9 +536,11 @@ func execReq(req *http.Request, t *testing.T) *http.Response {
 	}
 	return res
 }
-func checkRespCode(t *testing.T, expected int, actual int) {
+func checkRespCode(t *testing.T, expected int, actual int, name string) {
 	if expected != actual {
-		t.Errorf("Expected resp code %d. Got %d\n", expected, actual)
+		t.Errorf("test FALSE: %s ------- Expected resp code %d. Got %d\n", name, expected, actual)
+	} else {
+		fmt.Printf("test OK: %s", name)
 	}
 }
 func checkIntInBody(t *testing.T, expected int64, actual int64) {

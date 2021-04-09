@@ -25,6 +25,7 @@ func (api *Api) AddFetcher(c *gin.Context) {
 	jobID, restErr := api.Worker.RegisterFetcher(&fetcher)
 	if restErr != nil {
 		c.JSON(restErr.Status(), restErr)
+		return
 	}
 	fetcher.JobID = int64(jobID)
 	if err := api.Storage.SaveFetcher(&fetcher); err != nil {
