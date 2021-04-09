@@ -109,6 +109,7 @@ func (api *Api) DeleteFetcher(c *gin.Context) {
 	fetcher, err := api.Storage.GetFetcher(fetcherId)
 	if err != nil {
 		c.JSON(err.Status(), err)
+		return
 	}
 	api.Worker.DeregisterFetcher(cron.EntryID(fetcher.JobID))
 

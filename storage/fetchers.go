@@ -7,18 +7,53 @@ import (
 	fetchers "github.com/Kamzs/Kamil-Ambroziak"
 	"github.com/Kamzs/Kamil-Ambroziak/logger"
 	"github.com/Kamzs/Kamil-Ambroziak/utils"
+	sq "github.com/Masterminds/squirrel"
 )
 
-func (db *MySQL) SaveFetcher(fetcher *fetchers.Fetcher) utils.RestErr {
+func prepareInsertFetcher(fetcher *fetchers.Fetcher) (string, []interface{}) {
 
-	stmt, err := db.client.Prepare(queryInsertFetcher)
+	sql, args, err := sq.
+		Insert("fetchers").
+		Columns("url", "inter", "job_id").
+		Values(fetcher.Url, fetcher.Interval, fetcher.JobID).
+		ToSql()
+
+	if err != nil {
+		logger.Error("could not parse query", err)
+		return "", nil
+	}
+	return sql, args
+}
+
+func prepareGetFetcher(fetcherId int64) (string, []interface{}) {
+	//"SELECT url, inter, job_id FROM fetchers WHERE id=?;"
+	users := sq.
+		Select("url", "inter", "job_id").
+		From("fetchers")
+
+	active := users.Where(sq.Eq{"id": fetcherId})
+
+	sql, args, err := active.ToSql()
+	if err != nil {
+		logger.Error("could not parse query", err)
+		return "", nil
+	}
+	return sql, args
+}
+
+func (db *MySQL) SaveFetcher(fetcher *fetchers.Fetcher) utils.RestErr {
+	q, p := prepareInsertFetcher(fetcher)
+	if q == "" {
+		return utils.NewInternalServerError("error when tying to save fetcher", errors.New("query error"))
+	}
+	stmt, err := db.client.Prepare(q)
 	if err != nil {
 		logger.Error("error when trying to prepare save fetcher statement", err)
 		return utils.NewInternalServerError("error when tying to save fetcher", errors.New("database error"))
 	}
 	defer stmt.Close()
 
-	insertResult, saveErr := stmt.Exec(fetcher.Url, fetcher.Interval, fetcher.JobID)
+	insertResult, saveErr := stmt.Exec(p...)
 	if saveErr != nil {
 		logger.Error("error when trying to save fetcher", saveErr)
 		return utils.NewInternalServerError("error when tying to save fetcher", errors.New("database error"))
@@ -94,14 +129,18 @@ func (db *MySQL) FindAllFetchers() ([]fetchers.Fetcher, utils.RestErr) {
 }
 
 func (db *MySQL) GetFetcher(fetcherId int64) (*fetchers.Fetcher, utils.RestErr) {
-	stmt, err := db.client.Prepare(queryGetFetcher)
+	q, p := prepareGetFetcher(fetcherId)
+	if q == "" {
+		return nil, utils.NewInternalServerError("error when tying to save fetcher", errors.New("query error"))
+	}
+	stmt, err := db.client.Prepare(q)
 	if err != nil {
 		logger.Error("error when trying to prepare get fetcher statement", err)
 		return nil, utils.NewInternalServerError("error when tying to get fetcher", errors.New("database error"))
 	}
 	defer stmt.Close()
 
-	result := stmt.QueryRow(fetcherId)
+	result := stmt.QueryRow(p...)
 	fetcher := fetchers.Fetcher{}
 	if getErr := result.Scan(&fetcher.Url, &fetcher.Interval, &fetcher.JobID); getErr != nil {
 		logger.Error("error when trying to get fetcher by id", getErr)

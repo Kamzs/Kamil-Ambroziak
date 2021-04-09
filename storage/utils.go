@@ -1,9 +1,10 @@
 package storage
 
+//TODO: use sqirrel for rest of queries
 const (
 	//fetcher
-	queryInsertFetcher = "INSERT INTO fetchers(url, inter, job_id) VALUES(?, ?, ?);"
-	queryGetFetcher    = "SELECT url, inter, job_id FROM fetchers WHERE id=?;"
+	//queryInsertFetcher = "INSERT INTO fetchers(url, inter, job_id) VALUES(?, ?, ?);"
+	//queryGetFetcher    = "SELECT url, inter, job_id FROM fetchers WHERE id=?;"
 	queryUpdateFetcher = "UPDATE fetchers SET inter=?, url=?, job_id=? WHERE id=?;"
 	queryDeleteUser    = "DELETE FROM fetchers WHERE id=?;"
 	queryFindAll       = "SELECT id, url, inter, job_id FROM fetchers;"

@@ -12,10 +12,10 @@ Content-Type: application/json
 
 {
   "url": "https://httpbin.org/delay/10",
-  "interval":7
+  "interval":77
 }
 ###
-GET http://localhost:8080/api/fetcher/15/history
+GET http://localhost:8080/api/fetcher/7/history
 Content-Type: application/json
 
 {
@@ -28,7 +28,7 @@ Content-Type: application/json
 }
 
 ###
-DELETE http://localhost:8080/api/fetcher/44
+DELETE http://localhost:8080/api/fetcher/3
 Content-Type: application/json
 
 {
